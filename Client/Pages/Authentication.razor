@@ -1,0 +1,60 @@
+﻿@page "/authentication/{action}"
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<RemoteAuthenticatorView Action="@Action">
+</RemoteAuthenticatorView>
+
+@code{
+    [Parameter] public string Action { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+
+
+        if (Action == "logout-failed")
+        {
+            nav.NavigateTo(nav.BaseUri, true);
+            return;
+        }
+        if (Action == "login-callback")
+        {
+            var userId = "";
+            foreach (var i in authState.User.Claims)
+            {
+                if (i.Type == "sub")
+                    userId = i.Value;
+            }
+            var user = await localdb.GetItemAsync<User>($"user{userId}");
+            if (user == null) user = new();
+            foreach (var i in authState.User.Claims)
+            {
+                if (i.Type == "sub")
+                {
+                    if (user.Id != i.Value)
+                        user = new();
+                    user.Id = i.Value;
+                }
+                if (i.Type == "email")
+                {
+                    user.Email = i.Value;
+                }
+                if (i.Type == "given_name")
+                {
+                    user.GivenName = i.Value;
+                }
+                if (i.Type == "family_name")
+                {
+                    user.SurName = i.Value;
+                }
+                if (i.Type == "picture")
+                {
+                    user.PictureUri = i.Value;
+                }
+            }
+            await localdb.SetItemAsync($"user{userId}", user);
+        }
+
+    }
+}

@@ -1,0 +1,59 @@
+﻿@page "/sections"
+@code {
+    User user;
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var userId = "";
+        foreach (var i in authState.User.Claims)
+        {
+            if (i.Type == "sub")
+                userId = i.Value;
+        }
+
+        user = await localdb.GetItemAsync<User>($"user{userId}");
+    }
+
+    async Task OnAddClick()
+    {
+        var d = await dialog.Show<DialogAddSection>("Add Section", new DialogOptions() { MaxWidth = MaxWidth.ExtraSmall }).Result;
+        if (!d.Cancelled)
+        {
+            var data = (Section)d.Data;
+            data.Id = Guid.NewGuid().ToString();
+            user.Sections.Add(data);
+            await localdb.SetItemAsync($"user{user.Id}", user);
+        }
+    }
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <MudPaper Elevation="25" Class="p-3 mb-3">
+            <MudToolBar Dense Class="p-0 m-0">
+                <MudSpacer />
+                <MudButton OnClick="OnAddClick" StartIcon="@Icons.Rounded.Add" Variant="Variant.Filled" Size="Size.Small" Color="Color.Primary">Add Section</MudButton>
+            </MudToolBar>
+            @if (user == null)
+            {
+                <MudProgressLinear Color="Color.Primary" Size="Size.Small" Indeterminate Class="mt-3" />
+            }
+            else
+            {
+                if (user.Sections.Count == 0)
+                {
+                    <p class="p-5 text-center">
+                        <i>No section added yet.</i>
+                    </p>
+                }
+                <MudList Dense Clickable>
+                    @foreach (var sec in user.Sections)
+                    {
+                        <MudListItem OnClick="@(()=> nav.NavigateTo($"/sections/{sec.Id}"))" Dense>@sec.Name</MudListItem>
+                    }
+                </MudList>
+            }
+        </MudPaper>
+
+    </div>
+</div>

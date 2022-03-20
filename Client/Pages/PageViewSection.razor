@@ -1,0 +1,74 @@
+﻿@page "/sections/{Id}"
+@code {
+    [Parameter]
+    public string Id { get; set; }
+    User user;
+    Section sec = new();
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var userId = "";
+        foreach (var i in authState.User.Claims)
+        {
+            if (i.Type == "sub")
+                userId = i.Value;
+        }
+
+        user = await localdb.GetItemAsync<User>($"user{userId}");
+        sec = user.Sections.Where(x => x.Id == Id).FirstOrDefault();
+
+    }
+
+    async Task OnAddClick()
+    {
+        var d = await dialog.Show<DialogAddStudent>("Add Student", new DialogOptions() { MaxWidth = MaxWidth.ExtraSmall }).Result;
+        if (!d.Cancelled)
+        {
+            if (sec.Students == null) sec.Students = new();
+            user.Sections.Remove(sec);
+
+            var data = (Student)d.Data;
+            data.Id = Guid.NewGuid().ToString();
+            sec.Students.Add(data);
+            user.Sections.Add(sec);
+            await localdb.SetItemAsync($"user{user.Id}", user);
+        }
+    }
+}
+
+<MudToolBar Dense Class="m-0 p-0">
+    <MudButton OnClick="@(()=> nav.NavigateTo("/sections"))" StartIcon="@Icons.Rounded.ArrowBackIos" Size="Size.Small" Color="Color.Default" Variant="Variant.Text">Back</MudButton>
+    <MudSpacer />
+</MudToolBar>
+<div class="row">
+    <div class="col-md-12">
+        <MudPaper Class="p-3 mb-3" Elevation="25">
+            <MudToolBar Dense Class="mb-3 p-0">
+                <MudText Typo="Typo.h4">@sec.Name</MudText>
+                <MudSpacer/>
+                <MudButton OnClick="OnAddClick" Variant="Variant.Filled" StartIcon="@Icons.Rounded.PersonAdd" Color="Color.Primary" Size="Size.Small">Add Student</MudButton>
+            </MudToolBar>
+            <MudSimpleTable Dense Hover Outlined Striped>
+                <thead>
+                    <tr>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                    </tr>
+                </thead>
+                @if (sec.Students != null)
+                {
+                    <tbody>
+                        @foreach (var i in sec.Students)
+                        {
+                            <tr>
+                                <td>@i.FistName</td>
+                                <td>@i.LastName</td>
+                            </tr>
+                        }
+                    </tbody>
+                }
+            </MudSimpleTable>
+        </MudPaper>
+    </div>
+</div>
+

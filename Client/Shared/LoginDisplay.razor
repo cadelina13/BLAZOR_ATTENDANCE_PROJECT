@@ -1,0 +1,32 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+
+@inject NavigationManager Navigation
+@inject SignOutSessionStateManager SignOutManager
+
+<AuthorizeView>
+    <Authorized>
+        <MudTooltip Placement="Placement.Left" Text="Logout">
+            <MudIconButton OnClick="BeginSignOut" Color="Color.Inherit" Icon="@Icons.Rounded.Logout" />
+        </MudTooltip>
+    </Authorized>
+    <NotAuthorized>
+        <MudTooltip Placement="Placement.Left" Text="Sign in with Google">
+            <MudIconButton Link="authentication/login" Color="Color.Inherit" Icon="@Icons.Custom.Brands.Google" />
+        </MudTooltip>
+        
+    </NotAuthorized>
+</AuthorizeView>
+
+@code{
+    private async Task BeginSignOut(MouseEventArgs args)
+    {
+        var d = await dialog.ShowMessageBox("Sign out", "You are about to end your session. Are you sure?", yesText: "Sign Out", noText: "Cancel");
+        if(d.HasValue && d.Value)
+        {
+            await SignOutManager.SetSignOutState();
+            Navigation.NavigateTo("authentication/logout");
+        }
+
+    }
+}

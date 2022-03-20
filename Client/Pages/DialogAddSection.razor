@@ -1,0 +1,21 @@
+﻿@code {
+    [CascadingParameter] MudDialogInstance _mudDialog { get; set; }
+    Section data = new();
+
+
+    void Submit()
+    {
+        _mudDialog.Close(DialogResult.Ok(data));
+    }
+    void Cancel() => _mudDialog.Cancel();
+}
+
+<MudDialog>
+    <DialogContent>
+        <MudTextField Immediate @bind-Value="data.Name" Label="Section Name" Variant="Variant.Outlined" Lines="1" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton StartIcon="@Icons.Rounded.Close" Variant="Variant.Text" Color="Color.Default" Size="Size.Small" OnClick="Cancel">Cancel</MudButton>
+        <MudButton StartIcon="@Icons.Rounded.Save" Disabled="@(string.IsNullOrEmpty(data.Name))" Variant="Variant.Text" Color="Color.Primary" Size="Size.Small" OnClick="Submit">Save</MudButton>
+    </DialogActions>
+</MudDialog>

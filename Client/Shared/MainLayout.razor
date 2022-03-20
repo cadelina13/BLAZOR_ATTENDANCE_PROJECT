@@ -1,0 +1,89 @@
+﻿@inherits LayoutComponentBase
+<MudSnackbarProvider />
+<MudDialogProvider FullWidth="true"
+                   DisableBackdropClick="true"
+                   CloseButton="true"
+                   Position="DialogPosition.Center" />
+<MudThemeProvider />
+<MudLayout>
+    <AuthorizeView>
+        <Authorized>
+            <MudAppBar Dense Elevation="25">
+                <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+                <MudSpacer />
+                <LoginDisplay />
+            </MudAppBar>
+            <MudDrawer @bind-Open="_drawerOpen" Elevation="2">
+                <MudDrawerHeader Class="p-1 text-center">
+                    @if (user != null && !string.IsNullOrEmpty(user.Id))
+                    {
+                        <table class="table m-0 p-0 table-borderless">
+                            <tr>
+                                <td class="m-0 p-0">
+                                    <img src="@user.PictureUri" style="border-radius:50%" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="m-0 p-0">
+                                    <MudText Inline Typo="Typo.h5" Class="ml-3">@user.GivenName @user.SurName</MudText>
+                                    <MudText Inline Typo="Typo.subtitle1" Class="ml-3">@user.Email</MudText>
+                                </td>
+                            </tr>
+                        </table>
+                    }
+                </MudDrawerHeader>
+                <NavMenu />
+            </MudDrawer>
+            <MudMainContent>
+                <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
+                    @Body
+                </MudContainer>
+            </MudMainContent>
+        </Authorized>
+        <NotAuthorized>
+            <MudAppBar Dense Elevation="25">
+                <MudSpacer />
+                <LoginDisplay />
+            </MudAppBar>
+            <MudMainContent>
+                <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
+                    @Body
+                </MudContainer>
+            </MudMainContent>
+        </NotAuthorized>
+    </AuthorizeView>
+
+</MudLayout>
+
+@code {
+    public User user { get; set; } 
+    protected override async Task OnInitializedAsync()
+    {
+
+    }
+
+    protected override async Task OnAfterRenderAsync(bool first)
+    {
+        if (user == null)
+        {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var userId = "";
+            foreach (var i in authState.User.Claims)
+            {
+                if (i.Type == "sub")
+                    userId = i.Value;
+            }
+            await Task.Delay(1000);
+            user = await localdb.GetItemAsync<User>($"user{userId}");
+            StateHasChanged();
+        }
+    }
+
+
+    bool _drawerOpen = true;
+    void DrawerToggle()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+
+}
