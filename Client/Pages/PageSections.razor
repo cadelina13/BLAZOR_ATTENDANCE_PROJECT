@@ -18,6 +18,7 @@
             if (sectionlist == null) sectionlist = new();
             sectionlist.Add(data);
             await localdb.SetItemAsync(table.sections, sectionlist);
+            snackbar.Add($"{data.Name} successfully added to the list.");
         }
     }
 }

@@ -22,6 +22,7 @@
             studentlist.Add(data);
             await localdb.SetItemAsync(table.students, studentlist);
             await LoadData();
+            snackbar.Add($"{data.FistName} successfully added to the list.");
         }
     }
     async Task EditStudentClick(Student data)
