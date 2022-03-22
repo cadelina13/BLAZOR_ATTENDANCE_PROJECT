@@ -1,42 +1,33 @@
-﻿@page "/sections/{Id}"
+﻿@page "/sections/{sectionId}"
 @code {
     [Parameter]
-    public string Id { get; set; }
+    public string sectionId { get; set; }
     Section sec = new();
-    List<Student> studentlist = new();
-    List<SectionRecord> sectionRecords;
+    List<Subject> listofsubjects = new();
+    List<SubjectRecord> records = new();
     protected override async Task OnInitializedAsync()
     {
         await LoadData();
     }
     async Task LoadData()
     {
-        studentlist = new();
-        sectionRecords = new();
-        var stdlist = await localdb.GetItemAsync<List<Student>>(table.students);
-        sec = (await localdb.GetItemAsync<List<Section>>(table.sections)).Where(x => x.Id == Id).FirstOrDefault();
-        sectionRecords = await localdb.GetItemAsync<List<SectionRecord>>($"{table.section_records}{Id}");
-        if (sectionRecords == null) sectionRecords = new();
-        foreach (var i in sectionRecords)
-        {
-            var std = stdlist.Where(x => x.Id == i.StudentId).FirstOrDefault();
-            studentlist.Add(std);
-        }
+        sec = (await db.GetList<Section>(table.table_section)).Where(x => x.Id == sectionId).FirstOrDefault();
+        listofsubjects = (await db.GetList<Subject>(table.table_subject)).Where(x=>x.SectionId == sectionId).ToList();
+        records = await db.GetList<SubjectRecord>(table.table_subject_record);
     }
     async Task OnAddClick()
     {
-        var d = await dialog.Show<DialogBrowseStudent>("Student list",
-            new DialogParameters() { ["current_studentlist"] = studentlist },
+        var d = await dialog.Show<DialogAddSubject>("Add subject",
             new DialogOptions() { MaxWidth = MaxWidth.ExtraSmall }).Result;
         if (!d.Cancelled)
         {
-            var data = (List<SectionRecord>)d.Data;
-            foreach (var i in data)
-            {
-                i.SectionId = Id;
-            }
-            sectionRecords.AddRange(data);
-            await localdb.SetItemAsync($"{table.section_records}{Id}", sectionRecords);
+            var all = await db.GetList<Subject>(table.table_subject);
+            var data = (Subject)d.Data;
+            data.SectionId = sectionId;
+            if (all == null) all = new();
+            all.Add(data);
+            await db.SaveRecord<List<Subject>>(table.table_subject, all);
+            snackbar.Add($"{data.SubjectName} successfully added to the list.");
         }
         await LoadData();
     }
@@ -46,50 +37,41 @@
         var d = await dialog.ShowMessageBox("Confirmation", "You are about to remove this student", yesText: "Remove", noText: "Cancel");
         if (d.HasValue && d.Value)
         {
-            var a = sectionRecords.Where(x => x.StudentId == selectedId).FirstOrDefault();
-            sectionRecords.Remove(a);
-            await localdb.SetItemAsync($"{table.section_records}{Id}", sectionRecords);
+
             await LoadData();
         }
 
     }
+
 }
 
 <MudToolBar Dense Class="mb-3 p-0">
     <MudButton OnClick="@(()=> nav.NavigateTo("/sections"))" StartIcon="@Icons.Rounded.ArrowBackIos" Size="Size.Small" Color="Color.Primary">Back</MudButton>
     <MudSpacer />
+    <MudButton OnClick="OnAddClick" StartIcon="@Icons.Rounded.Edit" Size="Size.Small" Color="Color.Primary" Variant="Variant.Filled" >Add Subject</MudButton>
 </MudToolBar>
-<div class="row">
-    <div class="col-md-12">
-        <MudPaper Class="p-3 mb-3" Elevation="25">
-            <MudToolBar Dense Class="mb-3 p-0">
-                <MudText Typo="Typo.h4">@sec.Name</MudText>
-                <MudSpacer />
-                <MudTooltip Text="Browse Student" Placement="Placement.Start">
-                    <MudIconButton OnClick="OnAddClick" Variant="Variant.Filled" Icon="@Icons.Rounded.PersonAdd" Color="Color.Primary" Size="Size.Small" />
-                </MudTooltip>
-            </MudToolBar>
-            <MudTable Outlined Items="studentlist" T="Student" SortLabel="Sort by" Hover Dense>
-                <HeaderContent>
-                    <MudTh><MudTableSortLabel SortBy="new Func<Student, object>(x=>x.FistName)">First Name</MudTableSortLabel></MudTh>
-                    <MudTh><MudTableSortLabel SortBy="new Func<Student, object>(x=>x.LastName)">Last Name</MudTableSortLabel></MudTh>
-                    <MudTh><MudTableSortLabel SortBy="new Func<Student, object>(x=>x.ParentsPhoneNumber)">Parent's Contact</MudTableSortLabel></MudTh>
-                    <MudTh Style="width:1%">*</MudTh>
-                </HeaderContent>
-                <RowTemplate>
-                    <MudTd DataLabel="Fist Name">@context.FistName</MudTd>
-                    <MudTd DataLabel="Last Name">@context.LastName</MudTd>
-                    <MudTd DataLabel="Parent's Contact">@context.ParentsPhoneNumber</MudTd>
-                    <MudTd>
-                        <MudIconButton Size="Size.Small" Color="Color.Secondary" Icon="@Icons.Rounded.Close" Class="p-1" />
-                    </MudTd>
-                </RowTemplate>
-                <PagerContent>
-                    <MudTablePager PageSizeOptions="new int[]{50, 100}" />
-                </PagerContent>
-            </MudTable>
-
-        </MudPaper>
+<MudPaper Elevation="25" Class="p-3">
+    <MudText Typo="Typo.h5" Class="mb-3" Color="Color.Primary">@sec.Name</MudText>
+    <div class="row">
+        @foreach (var i in listofsubjects)
+        {
+            var stdcount = records.Where(x => x.SubjectId == i.Id).Count();
+            <div class="col-md-3">
+                <MudPaper Outlined Class="p-3 m-1">
+                    <MudText Typo="Typo.h6">@i.SubjectName</MudText>
+                    @if (stdcount <= 1)
+                    {
+                        <MudText Typo="Typo.caption">@stdcount student</MudText>
+                    }
+                    else
+                    {
+                        <MudText Typo="Typo.caption">@stdcount students</MudText>
+                    }
+                    <MudButton OnClick="@(()=> nav.NavigateTo($"{nav.BaseUri}sections/{sectionId}/{i.Id}"))" Class="mt-3" DisableElevation Variant="Variant.Filled" Size="Size.Small" Color="Color.Primary" FullWidth>View</MudButton>
+                </MudPaper>
+            </div>
+        }
     </div>
-</div>
+</MudPaper>
+
 

@@ -3,13 +3,14 @@
     List<Student> studentlist;
     protected override async Task OnInitializedAsync()
     {
+        WebHeader.TITLE = "Students";
         await LoadData();
     }
 
     async Task LoadData()
     {
         studentlist = null;
-        studentlist = await localdb.GetItemAsync<List<Student>>(table.students);
+        studentlist = await db.GetList<Student>(table.table_student);
         if (studentlist == null) studentlist = new();
     }
     async Task OnAddClick()
@@ -20,7 +21,7 @@
             var data = (Student)d.Data;
             if (studentlist == null) studentlist = new();
             studentlist.Add(data);
-            await localdb.SetItemAsync(table.students, studentlist);
+            await db.SaveRecord<List<Student>>(table.table_student, studentlist);
             await LoadData();
             snackbar.Add($"{data.FistName} successfully added to the list.");
         }
@@ -36,7 +37,7 @@
             data.FistName = rs.FistName;
             data.LastName = rs.LastName;
             data.ParentsPhoneNumber = rs.ParentsPhoneNumber;
-            await localdb.SetItemAsync(table.students, studentlist);
+            await db.SaveRecord<List<Student>>(table.table_student, studentlist);
         }
     }
 }
@@ -54,11 +55,19 @@
                     <MudTh><MudTableSortLabel SortBy="new Func<Student, object>(x=>x.FistName)">First Name</MudTableSortLabel></MudTh>
                     <MudTh><MudTableSortLabel SortBy="new Func<Student, object>(x=>x.LastName)">Last Name</MudTableSortLabel></MudTh>
                     <MudTh><MudTableSortLabel SortBy="new Func<Student, object>(x=>x.ParentsPhoneNumber)">Parent's Contact</MudTableSortLabel></MudTh>
+                    <MudTh><MudTableSortLabel SortBy="new Func<Student, object>(x=>x.ParentsPhoneNumber)">Grade Level</MudTableSortLabel></MudTh>
+                    <MudTh Style="width:1%">*</MudTh>
                 </HeaderContent>
                 <RowTemplate>
                     <MudTd DataLabel="Fist Name">@context.FistName</MudTd>
                     <MudTd DataLabel="Last Name">@context.LastName</MudTd>
                     <MudTd DataLabel="Parent's Contact">@context.ParentsPhoneNumber</MudTd>
+                    <MudTd DataLabel="Grade Level">@context.GradeLevel</MudTd>
+                    <MudTd>
+                        <MudTooltip Placement="Placement.Start" Text="Edit">
+                            <MudIconButton Color="Color.Primary" Size="Size.Small" Icon="@Icons.Rounded.Edit" Class="p-0" OnClick="@(()=> EditStudentClick(context))" />
+                        </MudTooltip>
+                    </MudTd>
                 </RowTemplate>
                 <PagerContent>
                     <MudTablePager PageSizeOptions="new int[]{50, 100}" />

@@ -1,0 +1,18 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace Client.Models
+{
+    public class Subject
+    {
+        public string Id { get; set; }
+        public string SectionId { get; set; }
+        public string SubjectName { get; set; }
+        public Subject()
+        {
+            Id = Guid.NewGuid().ToString();
+        }
+    }
+}

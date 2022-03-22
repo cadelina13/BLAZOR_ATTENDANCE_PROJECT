@@ -13,7 +13,7 @@
     async Task LoadData()
     {
         studentlist = new();
-        studentlist = (await localdb.GetItemAsync<List<Student>>(table.students)).Where(x=>!current_studentlist.Select(x=>x.Id).Contains(x.Id)).ToList();
+        studentlist = (await db.GetList<Student>(table.table_student)).Where(x => !current_studentlist.Select(x => x.Id).Contains(x.Id)).ToList(); ;
         if (studentlist == null) studentlist = new();
         if (!string.IsNullOrEmpty(txtSearch))
             studentlist = studentlist.Where(x => x.FistName.Contains(txtSearch, StringComparison.OrdinalIgnoreCase) || x.LastName.Contains(txtSearch, StringComparison.OrdinalIgnoreCase)).ToList();
@@ -31,16 +31,16 @@
         {
             selectedstudents.Add(data);
         }
-        studentlist = (await localdb.GetItemAsync<List<Student>>(table.students)).Where(x=>!current_studentlist.Select(x=>x.Id).Contains(x.Id)).ToList();
+        studentlist = (await db.GetList<Student>(table.table_student)).Where(x => !current_studentlist.Select(x => x.Id).Contains(x.Id)).ToList(); ;
     }
 
 
     void Submit()
     {
-        var data = new List<SectionRecord>();
+        var data = new List<SubjectRecord>();
         foreach (var i in selectedstudents)
         {
-            data.Add(new SectionRecord()
+            data.Add(new SubjectRecord()
             {
                 StudentId = i.Id
             });
@@ -59,7 +59,7 @@
             {
                 <MudText Align="Align.Center" Typo="Typo.caption" Class="text-center">No result.</MudText>
             }
-            <MudList Clickable Dense Style="height:56vh;overflow:scroll">
+            <MudList Clickable Dense Style="max-height:51vh;overflow:scroll">
                 @foreach (var i in studentlist)
                 {
                     var isSelected = selectedstudents.Any(x => x.Id == i.Id);

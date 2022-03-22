@@ -2,8 +2,12 @@
 <MudLayout>
     <MudAppBar Dense Elevation="25">
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+        <MudText Class="ml-3">@WebHeader.TITLE.ToUpper()</MudText>
         <MudSpacer />
         <MudText Class="mr-3">@user.Email</MudText>
+        <MudTooltip Placement="Placement.Start" Text="Sign out">
+            <MudIconButton OnClick="SignOut" Class="mr-3" Icon="@Icons.Rounded.Logout" Color="Color.Inherit" />
+        </MudTooltip>
         @*<LoginDisplay />*@
 
     </MudAppBar>
@@ -24,11 +28,22 @@
     User user = new();
     protected override async Task OnInitializedAsync()
     {
-        user = await localdb.GetItemAsync<User>("user");
+        user = await localdb.GetItemAsync<User>(table.table_user);
     }
 
     void DrawerToggle()
     {
         _drawerOpen = !_drawerOpen;
+    }
+
+    async Task SignOut()
+    {
+        var d = await dialog.ShowMessageBox("Sign out", "You are about to end your session. Are you sure?", yesText: "Sign out", noText: "Cancel");
+        if(d.HasValue && d.Value)
+        {
+            await localdb.ClearAsync();
+            await Task.Delay(300);
+            nav.NavigateTo(nav.BaseUri, true);
+        }
     }
 }

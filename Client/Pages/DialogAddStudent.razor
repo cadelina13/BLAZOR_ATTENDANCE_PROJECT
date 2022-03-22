@@ -15,6 +15,7 @@
         <MudTextField Immediate @bind-Value="data.FistName" Label="First Name" Variant="Variant.Outlined" Lines="1"  Class="mb-3" />
         <MudTextField Immediate @bind-Value="data.LastName" Label="Last Name" Variant="Variant.Outlined" Lines="1" Class="mb-3"/>
         <MudTextField Immediate @bind-Value="data.ParentsPhoneNumber" Label="Parent's Contact" Variant="Variant.Outlined" Lines="1" Class="mb-3"/>
+        <MudTextField Immediate @bind-Value="data.GradeLevel" T="int" Label="Grade Level" Variant="Variant.Outlined" Lines="1" Class="mb-3"/>
     </DialogContent>
     <DialogActions>
         <MudButton StartIcon="@Icons.Rounded.Close" Variant="Variant.Text" Color="Color.Default" Size="Size.Small" OnClick="Cancel">Cancel</MudButton>

@@ -1,0 +1,120 @@
+﻿@page "/sections/{sectionId}/{subjectId}"
+@code {
+    [Parameter]
+    public string sectionId { get; set; }
+    [Parameter]
+    public string subjectId { get; set; }
+
+
+    Section sec = new();
+    Subject sub = new();
+    List<Student> studentlist = new();
+    List<SubjectRecord> SubjectRecords = new();
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+    async Task LoadData()
+    {
+        studentlist = new();
+        SubjectRecords = new();
+        var stdlist = await db.GetList<Student>(table.table_student);
+        sec = (await db.GetList<Section>(table.table_section)).Where(x => x.Id == sectionId).FirstOrDefault();
+        sub = (await db.GetList<Subject>(table.table_subject)).Where(x => x.Id == subjectId).FirstOrDefault();
+        //sec = (await localdb.GetItemAsync<List<Section>>(table.sections)).Where(x => x.Id == sectionId).FirstOrDefault();
+        //SubjectRecords = await localdb.GetItemAsync<List<SubjectRecord>>($"{table.section}{sectionId}");
+        SubjectRecords = (await db.GetList<SubjectRecord>(table.table_subject_record)).Where(x=>x.SubjectId == subjectId).ToList();
+        if (SubjectRecords == null) SubjectRecords = new();
+        foreach (var i in SubjectRecords)
+        {
+            var std = stdlist.Where(x => x.Id == i.StudentId).FirstOrDefault();
+            studentlist.Add(std);
+        }
+
+    }
+    async Task OnAddClick()
+    {
+        var d = await dialog.Show<DialogBrowseStudent>("Student list",
+            new DialogParameters() { ["current_studentlist"] = studentlist },
+            new DialogOptions() { MaxWidth = MaxWidth.ExtraSmall }).Result;
+        if (!d.Cancelled)
+        {
+            var data = (List<SubjectRecord>)d.Data;
+            foreach (var i in data)
+            {
+                i.SubjectId = subjectId;
+            }
+            var allsub = await db.GetList<SubjectRecord>(table.table_subject_record);
+            allsub.AddRange(data);
+            //await localdb.SetItemAsync($"{table.section_records}{sectionId}", SubjectRecords);
+            await db.SaveRecord<List<SubjectRecord>>(table.table_subject_record, allsub);
+        }
+        await LoadData();
+    }
+
+    async Task RemoveStudentClick(string selectedId)
+    {
+        var d = await dialog.ShowMessageBox("Confirmation", "You are about to remove this student", yesText: "Remove", noText: "Cancel");
+        if (d.HasValue && d.Value)
+        {
+            var a = SubjectRecords.Where(x => x.StudentId == selectedId).FirstOrDefault();
+            SubjectRecords.Remove(a);
+            await db.SaveRecord<List<SubjectRecord>>(table.table_subject_record, SubjectRecords);
+            await LoadData();
+        }
+
+    }
+
+    async Task DeleteSection()
+    {
+        var d = await dialog.ShowMessageBox("Confirmation", "You are about to remove this student", yesText: "Remove", noText: "Cancel");
+        if (d.HasValue && d.Value)
+        {
+            var listsec = await db.GetList<Section>(table.table_section);
+            var toRemove = listsec.Where(x => x.Id == sec.Id).FirstOrDefault();
+            listsec.Remove(toRemove);
+            await db.SaveRecord<List<Section>>(table.table_section, listsec);
+            snackbar.Add($"{sec.Name} has been removed.");
+            nav.NavigateTo("/sections");
+        }
+    }
+
+}
+
+
+<MudToolBar Dense Class="mb-3 p-0">
+    <MudButton OnClick="@(()=> nav.NavigateTo($"/sections/{sectionId}"))" StartIcon="@Icons.Rounded.ArrowBackIos" Size="Size.Small" Color="Color.Primary">Back</MudButton>
+    <MudSpacer />
+    <MudTooltip Text="Browse Student" Placement="Placement.Start">
+        <MudIconButton OnClick="OnAddClick" Variant="Variant.Filled" Icon="@Icons.Rounded.PersonAdd" Color="Color.Primary" Size="Size.Small" />
+    </MudTooltip>
+</MudToolBar>
+<div class="row">
+    <div class="col-md-12">
+        <MudPaper Class="p-3 mb-3" Elevation="25">
+            <MudText Color="Color.Primary" Typo="Typo.h6">@sec.Name</MudText>
+            <MudText Class="mb-3" Typo="Typo.subtitle1">@sub.SubjectName</MudText>
+            <MudTable Outlined Items="studentlist" T="Student" SortLabel="Sort by" Hover Dense>
+                <HeaderContent>
+                    <MudTh><MudTableSortLabel SortBy="new Func<Student, object>(x=>x.FistName)">First Name</MudTableSortLabel></MudTh>
+                    <MudTh><MudTableSortLabel SortBy="new Func<Student, object>(x=>x.LastName)">Last Name</MudTableSortLabel></MudTh>
+                    <MudTh><MudTableSortLabel SortBy="new Func<Student, object>(x=>x.ParentsPhoneNumber)">Parent's Contact</MudTableSortLabel></MudTh>
+                    <MudTh Style="width:1%">*</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Fist Name">@context.FistName</MudTd>
+                    <MudTd DataLabel="Last Name">@context.LastName</MudTd>
+                    <MudTd DataLabel="Parent's Contact">@context.ParentsPhoneNumber</MudTd>
+                    <MudTd>
+                        <MudIconButton OnClick="@(()=> RemoveStudentClick(context.Id))" Size="Size.Small" Color="Color.Secondary" Icon="@Icons.Rounded.Close" Class="p-1" />
+                    </MudTd>
+                </RowTemplate>
+                <PagerContent>
+                    <MudTablePager PageSizeOptions="new int[]{50, 100}" />
+                </PagerContent>
+            </MudTable>
+
+        </MudPaper>
+    </div>
+</div>
+

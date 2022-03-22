@@ -4,8 +4,9 @@
     List<Section> sectionlist;
     protected override async Task OnInitializedAsync()
     {
-        user = await localdb.GetItemAsync<User>(table.user);
-        sectionlist = await localdb.GetItemAsync<List<Section>>(table.sections);
+        WebHeader.TITLE = "Sections";
+        //user = await db.GetRecord<User>(table.table_user, "");
+        sectionlist = await db.GetList<Section>(table.table_section);
         if (sectionlist == null) sectionlist = new();
     }
 
@@ -17,7 +18,7 @@
             var data = (Section)d.Data;
             if (sectionlist == null) sectionlist = new();
             sectionlist.Add(data);
-            await localdb.SetItemAsync(table.sections, sectionlist);
+            await db.SaveRecord<List<Section>>(table.table_section, sectionlist);
             snackbar.Add($"{data.Name} successfully added to the list.");
         }
     }
@@ -29,7 +30,7 @@
             <MudToolBar Dense Class="p-0 m-0">
                 <MudSpacer />
                 <MudTooltip Placement="Placement.Start" Text="Add section">
-                    <MudIconButton OnClick="OnAddClick" Icon="@Icons.Rounded.Edit" Variant="Variant.Filled" Size="Size.Small" Color="Color.Primary" />
+                    <MudButton OnClick="OnAddClick" StartIcon="@Icons.Rounded.Edit" Size="Size.Small" Color="Color.Primary" Variant="Variant.Filled">Add Section</MudButton>
                 </MudTooltip>
             </MudToolBar>
             @if (sectionlist == null)
@@ -38,13 +39,13 @@
             }
             else
             {
-                if (sectionlist.Count == 0)
-                {
-                    <p class="p-5 text-center">
-                        <i>No section added yet.</i>
-                    </p>
-                }
-                <MudList Style="height:72vh;overflow:scroll" Dense Clickable>
+                <MudList Style="height:65vh;overflow:scroll" Dense Clickable>
+                    @if (sectionlist.Count == 0)
+                    {
+                        <p class="p-5 text-center">
+                            <i>No section added yet.</i>
+                        </p>
+                    }
                     @foreach (var sec in sectionlist)
                     {
                         <MudListItem Avatar="@Icons.Rounded.AccountBalance" OnClick="@(()=> nav.NavigateTo($"/sections/{sec.Id}"))" Dense>

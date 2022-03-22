@@ -13,6 +13,7 @@ namespace Client.Models
         public string Id { get; set; }
         public string FistName { get; set; }
         public string LastName { get; set; }
+        public int GradeLevel { get; set; }
         public string ParentsPhoneNumber { get; set; }
         public Student()
         {

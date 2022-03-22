@@ -3,7 +3,8 @@
 @code {
     protected override async Task OnInitializedAsync()
     {
-        
+        WebHeader.TITLE = "Home";
+        await InvokeAsync(StateHasChanged);
     }
 }
 

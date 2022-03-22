@@ -33,13 +33,13 @@
 @code {
     async Task OnNavigation()
     {
-        if (!await localdb.ContainKeyAsync(table.user))
+        if (!await localdb.ContainKeyAsync(table.table_user))
         {
             var d = await dialog.Show<DialogAddEmail>("Registration", new DialogOptions() { MaxWidth = MaxWidth.ExtraSmall, CloseButton = false }).Result;
             if (!d.Cancelled)
             {
                 var data = (User)d.Data;
-                await localdb.SetItemAsync<User>(table.user, data);
+                await localdb.SetItemAsync<User>(table.table_user, data);
                 nav.NavigateTo(nav.BaseUri, true);
             }
         }
