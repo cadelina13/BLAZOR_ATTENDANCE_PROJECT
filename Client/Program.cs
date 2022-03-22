@@ -27,7 +27,7 @@ namespace Client
             {
                 // Configure your authentication provider options here.
                 // For more information, see https://aka.ms/blazor-standalone-auth
-                builder.Configuration.Bind("google", options.ProviderOptions);
+                builder.Configuration.Bind("google_dev", options.ProviderOptions);
                 options.ProviderOptions.DefaultScopes.Add("email");
                 options.ProviderOptions.DefaultScopes.Add("profile");
             });
@@ -44,7 +44,8 @@ namespace Client
                 config.SnackbarConfiguration.SnackbarVariant = Variant.Filled;
             });
             builder.Services.AddBlazoredLocalStorage();
-            builder.Services.AddSingleton<IDataAccess, DataAccess>();
+            builder.Services.AddSingleton<TableHelper>();
+
             await builder.Build().RunAsync();
         }
     }

@@ -1,17 +1,12 @@
 ﻿@page "/sections"
 @code {
     User user;
+    List<Section> sectionlist;
     protected override async Task OnInitializedAsync()
     {
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        var userId = "";
-        foreach (var i in authState.User.Claims)
-        {
-            if (i.Type == "sub")
-                userId = i.Value;
-        }
-
-        user = await localdb.GetItemAsync<User>($"user{userId}");
+        user = await localdb.GetItemAsync<User>(table.user);
+        sectionlist = await localdb.GetItemAsync<List<Section>>(table.sections);
+        if (sectionlist == null) sectionlist = new();
     }
 
     async Task OnAddClick()
@@ -20,9 +15,9 @@
         if (!d.Cancelled)
         {
             var data = (Section)d.Data;
-            data.Id = Guid.NewGuid().ToString();
-            user.Sections.Add(data);
-            await localdb.SetItemAsync($"user{user.Id}", user);
+            if (sectionlist == null) sectionlist = new();
+            sectionlist.Add(data);
+            await localdb.SetItemAsync(table.sections, sectionlist);
         }
     }
 }
@@ -32,24 +27,28 @@
         <MudPaper Elevation="25" Class="p-3 mb-3">
             <MudToolBar Dense Class="p-0 m-0">
                 <MudSpacer />
-                <MudButton OnClick="OnAddClick" StartIcon="@Icons.Rounded.Add" Variant="Variant.Filled" Size="Size.Small" Color="Color.Primary">Add Section</MudButton>
+                <MudTooltip Placement="Placement.Start" Text="Add section">
+                    <MudIconButton OnClick="OnAddClick" Icon="@Icons.Rounded.Edit" Variant="Variant.Filled" Size="Size.Small" Color="Color.Primary" />
+                </MudTooltip>
             </MudToolBar>
-            @if (user == null)
+            @if (sectionlist == null)
             {
                 <MudProgressLinear Color="Color.Primary" Size="Size.Small" Indeterminate Class="mt-3" />
             }
             else
             {
-                if (user.Sections.Count == 0)
+                if (sectionlist.Count == 0)
                 {
                     <p class="p-5 text-center">
                         <i>No section added yet.</i>
                     </p>
                 }
-                <MudList Dense Clickable>
-                    @foreach (var sec in user.Sections)
+                <MudList Style="height:72vh;overflow:scroll" Dense Clickable>
+                    @foreach (var sec in sectionlist)
                     {
-                        <MudListItem OnClick="@(()=> nav.NavigateTo($"/sections/{sec.Id}"))" Dense>@sec.Name</MudListItem>
+                        <MudListItem Avatar="@Icons.Rounded.AccountBalance" OnClick="@(()=> nav.NavigateTo($"/sections/{sec.Id}"))" Dense>
+                            <MudText Typo="Typo.h6">@sec.Name</MudText>
+                        </MudListItem>
                     }
                 </MudList>
             }

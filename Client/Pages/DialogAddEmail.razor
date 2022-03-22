@@ -1,0 +1,19 @@
+﻿@code {
+    [CascadingParameter] MudDialogInstance _mudDialog { get; set; }
+    User data = new();
+
+    void Submit()
+    {
+        _mudDialog.Close(DialogResult.Ok(data));
+    }
+    void Cancel() => _mudDialog.Cancel();
+}
+
+<MudDialog>
+    <DialogContent>
+        <MudTextField InputType="InputType.Email" InputMode="InputMode.email" Immediate @bind-Value="data.Email" Label="Email Address" Variant="Variant.Outlined" Lines="1" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton StartIcon="@Icons.Rounded.Save" Disabled="@(string.IsNullOrEmpty(data.Email))" Variant="Variant.Text" Color="Color.Primary" Size="Size.Small" OnClick="Submit">Register</MudButton>
+    </DialogActions>
+</MudDialog>

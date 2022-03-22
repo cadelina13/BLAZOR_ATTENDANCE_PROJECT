@@ -1,0 +1,88 @@
+﻿@code {
+    [CascadingParameter] MudDialogInstance _mudDialog { get; set; }
+    [Parameter]
+    public List<Student> current_studentlist { get; set; }
+    List<Student> studentlist;
+    List<Student> selectedstudents = new();
+    public string txtSearch { get; set; } = "";
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    async Task LoadData()
+    {
+        studentlist = new();
+        studentlist = (await localdb.GetItemAsync<List<Student>>(table.students)).Where(x=>!current_studentlist.Select(x=>x.Id).Contains(x.Id)).ToList();
+        if (studentlist == null) studentlist = new();
+        if (!string.IsNullOrEmpty(txtSearch))
+            studentlist = studentlist.Where(x => x.FistName.Contains(txtSearch, StringComparison.OrdinalIgnoreCase) || x.LastName.Contains(txtSearch, StringComparison.OrdinalIgnoreCase)).ToList();
+    }
+    async Task SelectStudent(Student data)
+    {
+        var isSelected = selectedstudents.Any(x => x.Id == data.Id);
+        if (isSelected)
+        {
+            var d = selectedstudents.Where(x => x.Id == data.Id).FirstOrDefault();
+            selectedstudents.Remove(d);
+            await InvokeAsync(StateHasChanged);
+        }
+        else
+        {
+            selectedstudents.Add(data);
+        }
+        studentlist = (await localdb.GetItemAsync<List<Student>>(table.students)).Where(x=>!current_studentlist.Select(x=>x.Id).Contains(x.Id)).ToList();
+    }
+
+
+    void Submit()
+    {
+        var data = new List<SectionRecord>();
+        foreach (var i in selectedstudents)
+        {
+            data.Add(new SectionRecord()
+            {
+                StudentId = i.Id
+            });
+        }
+        _mudDialog.Close(DialogResult.Ok(data));
+    }
+    void Cancel() => _mudDialog.Cancel();
+}
+
+<MudDialog>
+    <DialogContent>
+        <MudTextField Label="Search" AdornmentIcon="@Icons.Rounded.Search" Adornment="Adornment.Start" Immediate TextChanged="LoadData" @bind-Value="txtSearch" T="string" Variant="Variant.Outlined" Class="mb-3"/>
+        @if (studentlist != null)
+        {
+            if(studentlist.Count == 0)
+            {
+                <MudText Align="Align.Center" Typo="Typo.caption" Class="text-center">No result.</MudText>
+            }
+            <MudList Clickable Dense Style="height:56vh;overflow:scroll">
+                @foreach (var i in studentlist)
+                {
+                    var isSelected = selectedstudents.Any(x => x.Id == i.Id);
+                    <MudListItem Dense Class="m-0" OnClick="@(()=> SelectStudent(i))" IconColor="@(isSelected ? Color.Primary : Color.Default)" Icon="@Icons.Rounded.Person" IconSize="Size.Small">
+                        <MudToolBar Dense Class="p-0 m-0">
+                            <MudText Color="@(isSelected ? Color.Primary : Color.Default)">@i.FistName @i.LastName</MudText>
+                            @if (isSelected)
+                            {
+                                <MudSpacer/>
+                                <MudIcon Icon="@Icons.Rounded.Check" Color="Color.Primary" Size="Size.Small"/>
+                            }
+                        </MudToolBar>
+                    </MudListItem>
+                }
+            </MudList>
+        }
+        else
+        {
+            <MudProgressLinear Size="Size.Small" Color="Color.Primary" Indeterminate/>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton StartIcon="@Icons.Rounded.Close" Variant="Variant.Text" Color="Color.Default" Size="Size.Small" OnClick="Cancel">Dismiss</MudButton>
+        <MudButton StartIcon="@Icons.Rounded.Save" Disabled="@(selectedstudents.Count == 0)" Variant="Variant.Text" Color="Color.Primary" Size="Size.Small" OnClick="Submit">Save</MudButton>
+    </DialogActions>
+</MudDialog>

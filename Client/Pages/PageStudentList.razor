@@ -1,0 +1,69 @@
+﻿@page "/studentlist"
+@code {
+    List<Student> studentlist;
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    async Task LoadData()
+    {
+        studentlist = null;
+        studentlist = await localdb.GetItemAsync<List<Student>>(table.students);
+        if (studentlist == null) studentlist = new();
+    }
+    async Task OnAddClick()
+    {
+        var d = await dialog.Show<DialogAddStudent>("Add Student", new DialogOptions() { MaxWidth = MaxWidth.ExtraSmall }).Result;
+        if (!d.Cancelled)
+        {
+            var data = (Student)d.Data;
+            if (studentlist == null) studentlist = new();
+            studentlist.Add(data);
+            await localdb.SetItemAsync(table.students, studentlist);
+            await LoadData();
+        }
+    }
+    async Task EditStudentClick(Student data)
+    {
+        var d = await dialog.Show<DialogEditStudent>("Edit",
+            new DialogParameters() { ["data"] = data },
+            new DialogOptions() { MaxWidth = MaxWidth.ExtraSmall }).Result;
+        if (!d.Cancelled)
+        {
+            var rs = (Student)d.Data;
+            data.FistName = rs.FistName;
+            data.LastName = rs.LastName;
+            data.ParentsPhoneNumber = rs.ParentsPhoneNumber;
+            await localdb.SetItemAsync(table.students, studentlist);
+        }
+    }
+}
+
+
+<div class="row">
+    <div class="col-md-12">
+        <MudPaper Class="p-3 mb-3" Elevation="25">
+            <MudToolBar Dense Class="mb-3 p-0">
+                <MudSpacer />
+                <MudButton OnClick="OnAddClick" Variant="Variant.Filled" StartIcon="@Icons.Rounded.PersonAdd" Color="Color.Primary" Size="Size.Small">New Student</MudButton>
+            </MudToolBar>
+            <MudTable Outlined Items="studentlist" T="Student" SortLabel="Sort by" Hover Dense>
+                <HeaderContent>
+                    <MudTh><MudTableSortLabel SortBy="new Func<Student, object>(x=>x.FistName)">First Name</MudTableSortLabel></MudTh>
+                    <MudTh><MudTableSortLabel SortBy="new Func<Student, object>(x=>x.LastName)">Last Name</MudTableSortLabel></MudTh>
+                    <MudTh><MudTableSortLabel SortBy="new Func<Student, object>(x=>x.ParentsPhoneNumber)">Parent's Contact</MudTableSortLabel></MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Fist Name">@context.FistName</MudTd>
+                    <MudTd DataLabel="Last Name">@context.LastName</MudTd>
+                    <MudTd DataLabel="Parent's Contact">@context.ParentsPhoneNumber</MudTd>
+                </RowTemplate>
+                <PagerContent>
+                    <MudTablePager PageSizeOptions="new int[]{50, 100}" />
+                </PagerContent>
+            </MudTable>
+           
+        </MudPaper>
+    </div>
+</div>

@@ -13,13 +13,13 @@
 @using Microsoft.AspNetCore.Authorization
 @using System.Security.Claims
 @using Blazored.LocalStorage
-@using SharedClass.Models
-@using SharedClass
+@using Models
 @using Data
+@using Pages
 
 @inject ILocalStorageService localdb
 @inject ISnackbar snackbar
 @inject IDialogService dialog
-@inject IDataAccess db
 @inject NavigationManager nav
 @inject AuthenticationStateProvider AuthenticationStateProvider
+@inject TableHelper table

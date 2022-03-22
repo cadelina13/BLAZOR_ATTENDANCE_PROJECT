@@ -1,7 +1,12 @@
 @inject AuthenticationStateProvider AuthenticationStateProvider
-
+<MudSnackbarProvider />
+<MudDialogProvider FullWidth="true"
+                   DisableBackdropClick="true"
+                   CloseButton="true"
+                   Position="DialogPosition.Center" />
+<MudThemeProvider />
 <CascadingAuthenticationState>
-    <Router AppAssembly="@typeof(Program).Assembly" PreferExactMatches="@true">
+    <Router OnNavigateAsync="OnNavigation" AppAssembly="@typeof(Program).Assembly" PreferExactMatches="@true">
         <Found Context="routeData">
             <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
                 <NotAuthorized>
@@ -14,7 +19,7 @@
                         <p>You are not authorized to access this resource.</p>
                     }
                 </NotAuthorized>
-                
+
             </AuthorizeRouteView>
         </Found>
         <NotFound>
@@ -24,3 +29,20 @@
         </NotFound>
     </Router>
 </CascadingAuthenticationState>
+
+@code {
+    async Task OnNavigation()
+    {
+        if (!await localdb.ContainKeyAsync(table.user))
+        {
+            var d = await dialog.Show<DialogAddEmail>("Registration", new DialogOptions() { MaxWidth = MaxWidth.ExtraSmall, CloseButton = false }).Result;
+            if (!d.Cancelled)
+            {
+                var data = (User)d.Data;
+                await localdb.SetItemAsync<User>(table.user, data);
+                nav.NavigateTo(nav.BaseUri, true);
+            }
+        }
+
+    }
+}
