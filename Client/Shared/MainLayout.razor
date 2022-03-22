@@ -1,10 +1,11 @@
 ﻿@inherits LayoutComponentBase
-@attribute [Authorize]
 <MudLayout>
     <MudAppBar Dense Elevation="25">
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
         <MudSpacer />
         <MudText Class="mr-3">@user.Email</MudText>
+        @*<LoginDisplay />*@
+
     </MudAppBar>
     <MudDrawer @bind-Open="_drawerOpen" Elevation="2">
         <MudDrawerHeader>

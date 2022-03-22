@@ -27,9 +27,9 @@ namespace Client
             {
                 // Configure your authentication provider options here.
                 // For more information, see https://aka.ms/blazor-standalone-auth
-                builder.Configuration.Bind("google_dev", options.ProviderOptions);
+                /*builder.Configuration.Bind("google_dev", options.ProviderOptions);
                 options.ProviderOptions.DefaultScopes.Add("email");
-                options.ProviderOptions.DefaultScopes.Add("profile");
+                options.ProviderOptions.DefaultScopes.Add("profile");*/
             });
             builder.Services.AddMudServices(config =>
             {
