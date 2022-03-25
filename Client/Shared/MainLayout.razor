@@ -4,7 +4,6 @@
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
         <MudText Class="ml-3">@WebHeader.TITLE.ToUpper()</MudText>
         <MudSpacer />
-        <MudText Class="mr-3">@user.Email</MudText>
         <MudTooltip Placement="Placement.Start" Text="Sign out">
             <MudIconButton OnClick="SignOut" Class="mr-3" Icon="@Icons.Rounded.Logout" Color="Color.Inherit" />
         </MudTooltip>
@@ -13,7 +12,7 @@
     </MudAppBar>
     <MudDrawer @bind-Open="_drawerOpen" Elevation="2">
         <MudDrawerHeader>
-            <MudText Typo="Typo.h5">Attendance</MudText>
+            <MudText Typo="Typo.body1">@user.Email</MudText>
         </MudDrawerHeader>
         <NavMenu />
     </MudDrawer>

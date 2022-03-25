@@ -23,6 +23,8 @@ namespace Client.Data
             if (!await localdb.ContainKeyAsync(table))
                 await localdb.SetItemAsync(table, new List<T>());
             var list = await localdb.GetItemAsync<List<T>>(table);
+            if (list == null)
+                return default(List<T>);
             return list;
         }
         /*public async Task<T> GetRecord<T>(string table, string id)

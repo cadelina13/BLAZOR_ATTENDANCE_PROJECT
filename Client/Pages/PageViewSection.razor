@@ -5,14 +5,16 @@
     Section sec = new();
     List<Subject> listofsubjects = new();
     List<SubjectRecord> records = new();
+
     protected override async Task OnInitializedAsync()
     {
+        WebHeader.TITLE = "Subjects";
         await LoadData();
     }
     async Task LoadData()
     {
         sec = (await db.GetList<Section>(table.table_section)).Where(x => x.Id == sectionId).FirstOrDefault();
-        listofsubjects = (await db.GetList<Subject>(table.table_subject)).Where(x=>x.SectionId == sectionId).ToList();
+        listofsubjects = (await db.GetList<Subject>(table.table_subject)).Where(x => x.SectionId == sectionId).ToList();
         records = await db.GetList<SubjectRecord>(table.table_subject_record);
     }
     async Task OnAddClick()
@@ -48,7 +50,7 @@
 <MudToolBar Dense Class="mb-3 p-0">
     <MudButton OnClick="@(()=> nav.NavigateTo("/sections"))" StartIcon="@Icons.Rounded.ArrowBackIos" Size="Size.Small" Color="Color.Primary">Back</MudButton>
     <MudSpacer />
-    <MudButton OnClick="OnAddClick" StartIcon="@Icons.Rounded.Edit" Size="Size.Small" Color="Color.Primary" Variant="Variant.Filled" >Add Subject</MudButton>
+    <MudButton OnClick="OnAddClick" StartIcon="@Icons.Rounded.Edit" Size="Size.Small" Color="Color.Primary" Variant="Variant.Filled">Add Subject</MudButton>
 </MudToolBar>
 <MudPaper Elevation="25" Class="p-3">
     <MudText Typo="Typo.h5" Class="mb-3" Color="Color.Primary">@sec.Name</MudText>

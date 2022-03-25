@@ -22,6 +22,7 @@ namespace Client.Data
         public readonly string table_user = "table_user";
         public readonly string table_section_record = "table_section_record";
         public readonly string table_subject_record = "table_subject_record";
+        public readonly string table_attend_record = "table_attend_record";
 
     }
 }

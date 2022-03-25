@@ -12,6 +12,7 @@
     List<SubjectRecord> SubjectRecords = new();
     protected override async Task OnInitializedAsync()
     {
+        WebHeader.TITLE = "Subjects";
         await LoadData();
     }
     async Task LoadData()
@@ -92,7 +93,13 @@
 <div class="row">
     <div class="col-md-12">
         <MudPaper Class="p-3 mb-3" Elevation="25">
-            <MudText Color="Color.Primary" Typo="Typo.h6">@sec.Name</MudText>
+            <MudToolBar Class="p-0 m-0" Dense>
+                <MudText Color="Color.Primary" Typo="Typo.h6">@sec.Name</MudText>
+                <MudSpacer/>
+                <MudTooltip Text="Attendance records" Placement="Placement.Left">
+                    <MudIconButton OnClick="@(()=> nav.NavigateTo($"{nav.BaseUri}sections/{sectionId}/{subjectId}/attendance"))" Icon="@Icons.Rounded.CalendarToday" Variant="Variant.Filled" Size="Size.Small" Color="Color.Primary" />
+                </MudTooltip>
+            </MudToolBar>
             <MudText Class="mb-3" Typo="Typo.subtitle1">@sub.SubjectName</MudText>
             <MudTable Outlined Items="studentlist" T="Student" SortLabel="Sort by" Hover Dense>
                 <HeaderContent>

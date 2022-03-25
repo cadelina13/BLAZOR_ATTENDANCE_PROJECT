@@ -5,6 +5,8 @@
 
     void Submit()
     {
+        data.FistName = data.FistName.ToUpper();
+        data.LastName = data.LastName.ToUpper();
         _mudDialog.Close(DialogResult.Ok(data));
     }
     void Cancel() => _mudDialog.Cancel();

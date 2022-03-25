@@ -1,0 +1,124 @@
+﻿@page "/sections/{sectionId}/{subjectId}/attendance"
+@code {
+    [Parameter]
+    public string sectionId { get; set; }
+    [Parameter]
+    public string subjectId { get; set; }
+
+    List<Student> studentlist = new();
+    List<SubjectRecord> SubjectRecords = new();
+
+    DateTime? _selectedDate = DateTime.Now.Date;
+    int presentCount = 0, absentCount = 0;
+
+    Section sec = new();
+    Subject sub = new();
+    string tbl_recordid;
+    protected override async Task OnInitializedAsync()
+    {
+        WebHeader.TITLE = "Attendance Records";
+        tbl_recordid = $"{table.table_attend_record}{sectionId}{subjectId}";
+
+        sec = (await db.GetList<Section>(table.table_section)).Where(x => x.Id == sectionId).FirstOrDefault();
+        sub = (await db.GetList<Subject>(table.table_subject)).Where(x => x.Id == subjectId).FirstOrDefault();
+
+        await LoadData();
+    }
+
+    async Task LoadData()
+    {
+        studentlist = new();
+        SubjectRecords = new();
+        var stdlist = await db.GetList<Student>(table.table_student);
+        SubjectRecords = (await db.GetList<SubjectRecord>(table.table_subject_record)).Where(x => x.SubjectId == subjectId).ToList();
+        if (SubjectRecords == null) SubjectRecords = new();
+        foreach (var i in SubjectRecords)
+        {
+            var std = stdlist.Where(x => x.Id == i.StudentId).FirstOrDefault();
+            studentlist.Add(std);
+        }
+        await InitializeRecords();
+    }
+    List<AttendanceRecord> records = new();
+    async Task InitializeRecords()
+    {
+
+        records = new();
+        records = await db.GetList<AttendanceRecord>(tbl_recordid);
+        foreach (var i in studentlist)
+        {
+            var rec = records.Where(x => x.DateAttended.Value.Date == _selectedDate.Value.Date && x.SubjectId == subjectId && x.StudentId == i.Id).FirstOrDefault();
+            if (rec == null)
+            {
+                rec = new();
+                rec.StudentId = i.Id;
+                rec.SubjectId = subjectId;
+                rec.DateAttended = _selectedDate.Value.Date;
+                rec.IsPresent = false;
+                records.Add(rec);
+                await db.SaveRecord(tbl_recordid, records);
+            }
+        }
+        records = records.Where(x => x.DateAttended == _selectedDate.Value).ToList();
+        presentCount = records.Where(x => x.IsPresent).Count();
+        absentCount = records.Where(x => !x.IsPresent).Count();
+    }
+
+    async Task DateChanged(DateTime? d)
+    {
+        _selectedDate = d;
+        await InitializeRecords();
+    }
+    async Task OnStudentClick(string recId)
+    {
+        records = await db.GetList<AttendanceRecord>(tbl_recordid);
+        var rec = records.Where(x => x.Id == recId).FirstOrDefault();
+        if (rec != null)
+        {
+            rec.IsPresent = !rec.IsPresent;
+            await db.SaveRecord(tbl_recordid, records);
+        }
+        await InitializeRecords();
+    }
+}
+<MudToolBar Dense Class="mb-3 p-0">
+    <MudButton OnClick="@(()=> nav.NavigateTo($"sections/{sectionId}/{subjectId}"))" StartIcon="@Icons.Rounded.ArrowBackIos" Size="Size.Small" Color="Color.Primary">Back</MudButton>
+    <MudSpacer />
+</MudToolBar>
+
+<div class="row">
+    <div class="col-md-12 pb-5">
+        <MudPaper Class="p-3" Elevation="25">
+            <MudText Color="Color.Primary" Typo="Typo.h6">@sec.Name</MudText>
+            <MudText Class="mb-3" Typo="Typo.subtitle1">@sub.SubjectName</MudText>
+        </MudPaper>
+    </div>
+    <div class="col-md-4">
+        <MudDatePicker Date="_selectedDate" Margin="Margin.None" TitleDateFormat="MM dd" Orientation="Orientation.Landscape" DateChanged="DateChanged" PickerVariant="PickerVariant.Static" Elevation="25" />
+    </div>
+    <div class="col-md-8">
+        <MudPaper Class="p-3" Elevation="25">
+            <MudToolBar Class="p-0 m-0" Dense>
+                <MudText Typo="Typo.h6" Color="Color.Primary">Students (@studentlist.Count)</MudText>
+                <MudSpacer />
+                <MudText Typo="Typo.h6" Color="Color.Primary">@_selectedDate.Value.ToString("MM-dd-yyyy")</MudText>
+            </MudToolBar>
+            <MudText Color="Color.Default" Typo="Typo.caption">Present: @presentCount</MudText>
+            <MudText Class="ml-3" Color="Color.Default" Typo="Typo.caption">Absent: @absentCount</MudText>
+            @if (records != null)
+            {
+                <MudList Clickable Dense>
+                    @foreach (var i in records)
+                    {
+                        var std = studentlist.Where(x => x.Id == i.StudentId).FirstOrDefault();
+                        if (std != null)
+                        {
+                            <MudListItem OnClick="@(()=> OnStudentClick(i.Id))" Avatar="@(i.IsPresent ? Icons.Rounded.Check : Icons.Rounded.PersonOutline)" IconColor="@(i.IsPresent ? Color.Success : Color.Secondary)" AvatarClass="bg-white">@std.FistName @std.LastName</MudListItem>
+                        }
+                    }
+                </MudList>
+            }
+
+        </MudPaper>
+    </div>
+</div>
