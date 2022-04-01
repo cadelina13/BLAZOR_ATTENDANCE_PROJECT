@@ -1,36 +1,43 @@
 <Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
-  <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
-    <ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net5.0</TargetFramework>
+		<ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <None Include="Pages\Authentication.razor" />
-    <None Include="Pages\Counter.razor" />
-    <None Include="Pages\DialogAddSection.razor" />
-    <None Include="Pages\DialogAddStudent.razor" />
-    <None Include="Pages\Index.razor" />
-    <None Include="Pages\PageSections.razor" />
-    <None Include="Pages\PageViewSection.razor" />
-    <None Include="Shared\LoginDisplay.razor" />
-    <None Include="Shared\MainLayout.razor" />
-    <None Include="Shared\NavMenu.razor" />
-    <None Include="Shared\RedirectToLogin.razor" />
-    <None Include="Shared\SurveyPrompt.razor" />
-  </ItemGroup>
+	<ItemGroup>
+		<None Include="Pages\Authentication.razor" />
+		<None Include="Pages\Counter.razor" />
+		<None Include="Pages\DialogAddSection.razor" />
+		<None Include="Pages\DialogAddStudent.razor" />
+		<None Include="Pages\Index.razor" />
+		<None Include="Pages\PageSections.razor" />
+		<None Include="Pages\PageViewSection.razor" />
+		<None Include="Shared\LoginDisplay.razor" />
+		<None Include="Shared\MainLayout.razor" />
+		<None Include="Shared\NavMenu.razor" />
+		<None Include="Shared\RedirectToLogin.razor" />
+		<None Include="Shared\SurveyPrompt.razor" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Blazored.LocalStorage" Version="4.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="5.0.15" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="5.0.15" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication" Version="5.0.15" />
-    <PackageReference Include="MudBlazor" Version="5.2.4" />
-    <PackageReference Include="System.Net.Http.Json" Version="5.0.0" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Blazored.LocalStorage" Version="4.2.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="5.0.15" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="5.0.15" PrivateAssets="all" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication" Version="5.0.15" />
+		<PackageReference Include="MudBlazor" Version="5.2.4" />
+		<PackageReference Include="System.Net.Http.Json" Version="5.0.0" />
+		<PackageReference Include="RestSharp" Version="107.3.0" />
+		<PackageReference Include="Refit" Version="6.1.15" />
+		<PackageReference Include="Refit.HttpClientFactory" Version="6.1.15" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ServiceWorker Include="wwwroot\service-worker.js" PublishedContent="wwwroot\service-worker.published.js" />
-  </ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\SharedClass\SharedClass.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ServiceWorker Include="wwwroot\service-worker.js" PublishedContent="wwwroot\service-worker.published.js" />
+	</ItemGroup>
 
 </Project>

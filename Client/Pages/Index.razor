@@ -1,10 +1,16 @@
 ﻿@page "/"
+@using RestSharp 
 
 @code {
+    string sendTo = "";
+    string smsBody = "";
     protected override async Task OnInitializedAsync()
     {
         WebHeader.TITLE = "Home";
         await InvokeAsync(StateHasChanged);
+
+        
+
     }
 }
 
