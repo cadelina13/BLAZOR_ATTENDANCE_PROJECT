@@ -84,7 +84,9 @@
 
     async Task NotifyParentsClick()
     {
-        var d = await dialog.Show<DialogSendCustomMessage>("Notify Parents", new DialogOptions() { MaxWidth = MaxWidth.ExtraSmall }).Result;
+        var d = await dialog.Show<DialogSendCustomMessage>("Notify Parents", 
+            new DialogParameters() { ["subjectName"] = sub.SubjectName, ["selectedDate"] = _selectedDate.Value, ["selectedTime"] = sub.Time },
+            new DialogOptions() { MaxWidth = MaxWidth.ExtraSmall }).Result;
         
     }
 

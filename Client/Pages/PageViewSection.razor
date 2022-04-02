@@ -61,14 +61,21 @@
             <div class="col-md-3">
                 <MudPaper Outlined Class="p-3 m-1">
                     <MudText Typo="Typo.h6">@i.SubjectName</MudText>
-                    @if (stdcount <= 1)
-                    {
-                        <MudText Typo="Typo.caption">@stdcount student</MudText>
-                    }
-                    else
-                    {
-                        <MudText Typo="Typo.caption">@stdcount students</MudText>
-                    }
+                    <MudToolBar Dense Class="m-0 p-0">
+                        @if (stdcount <= 1)
+                        {
+                            <MudText Typo="Typo.caption">@stdcount student</MudText>
+                        }
+                        else
+                        {
+                            <MudText Typo="Typo.caption">@stdcount students</MudText>
+                        }
+                        <MudSpacer />
+                        @if (i.Time.HasValue)
+                        {
+                            <MudText Typo="Typo.caption">@DateTime.Today.Add(i.Time.Value).ToString("hh:mm tt")</MudText>
+                        }
+                    </MudToolBar>
                     <MudButton OnClick="@(()=> nav.NavigateTo($"{nav.BaseUri}sections/{sectionId}/{i.Id}"))" Class="mt-3" DisableElevation Variant="Variant.Filled" Size="Size.Small" Color="Color.Primary" FullWidth>View</MudButton>
                 </MudPaper>
             </div>

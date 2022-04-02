@@ -10,7 +10,13 @@
 
 <MudDialog>
     <DialogContent>
-        <MudTextField Immediate @bind-Value="data.SubjectName" Label="Subject Name" Variant="Variant.Outlined" Lines="1" />
+        <MudTextField Immediate @bind-Value="data.SubjectName" Label="Subject Name" Variant="Variant.Outlined" Lines="1" Class="mb-3" />
+        <MudHidden Breakpoint="Breakpoint.Xs">
+            <MudTimePicker PickerVariant="PickerVariant.Static" Variant="Variant.Outlined" />
+        </MudHidden>
+        <MudHidden Breakpoint="Breakpoint.SmAndUp">
+            <MudTimePicker Label="Time" AmPm TimeChanged="@((t)=> data.Time = t.Value )" PickerVariant="PickerVariant.Dialog" Variant="Variant.Outlined" />
+        </MudHidden>
     </DialogContent>
     <DialogActions>
         <MudButton StartIcon="@Icons.Rounded.Close" Variant="Variant.Text" Color="Color.Default" Size="Size.Small" OnClick="Cancel">Cancel</MudButton>

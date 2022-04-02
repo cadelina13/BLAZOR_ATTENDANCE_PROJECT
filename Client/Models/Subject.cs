@@ -11,6 +11,7 @@ namespace Client.Models
         public string Id { get; set; }
         public string SectionId { get; set; }
         public string SubjectName { get; set; }
+        public TimeSpan? Time { get; set; }
         public Subject()
         {
             Id = Guid.NewGuid().ToURLGuid();

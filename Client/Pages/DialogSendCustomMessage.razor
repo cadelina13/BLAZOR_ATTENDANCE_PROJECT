@@ -1,5 +1,11 @@
 ﻿@code {
     [CascadingParameter] MudDialogInstance _mudDialog { get; set; }
+    [Parameter]
+    public string subjectName { get; set; }
+    [Parameter]
+    public DateTime selectedDate { get; set; }
+    [Parameter]
+    public TimeSpan selectedTime { get; set; }
     CustomMessage msg = new();
     protected override async Task OnInitializedAsync()
     {
@@ -9,7 +15,7 @@
         msg = await localdb.GetItemAsync<CustomMessage>("custom_message");
         if (string.IsNullOrEmpty(msg.Message))
             msg.Message = WebHeader.MESSAGE_PLACEHOLDER;
-
+        msg.Message = msg.Message.Replace("#subject#", subjectName);
     }
 
     void Submit()
@@ -23,6 +29,10 @@
 <MudDialog>
     <DialogContent>
         <MudText Typo="Typo.body1">@msg.Message</MudText>
+        <hr />
+        <MudText Color="Color.Primary" Typo="Typo.body1">Subject Schedule</MudText>
+        <MudText Typo="Typo.caption">Date: @selectedDate.ToString("MMMM dd, yyyy")</MudText><br />
+        <MudText Typo="Typo.caption">Time: @selectedTime.ToString()</MudText>
     </DialogContent>
     <DialogActions>
         <MudButton StartIcon="@Icons.Rounded.Close" Variant="Variant.Text" Color="Color.Default" Size="Size.Small" OnClick="Cancel">Cancel</MudButton>
