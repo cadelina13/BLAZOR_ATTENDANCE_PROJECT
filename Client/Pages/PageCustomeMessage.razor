@@ -1,0 +1,37 @@
+﻿@page "/custom/message"
+@code {
+    CustomMessage msg = new();
+    protected override async Task OnInitializedAsync()
+    {
+        if (!await localdb.ContainKeyAsync("custom_message"))
+            await localdb.SetItemAsync("custom_message", msg);
+
+        msg = await localdb.GetItemAsync<CustomMessage>("custom_message");
+        if (string.IsNullOrEmpty(msg.Message))
+            msg.Message = WebHeader.MESSAGE_PLACEHOLDER;
+
+    }
+
+    async Task SaveMsg()
+    {
+        await localdb.SetItemAsync("custom_message", msg);
+        msg = await localdb.GetItemAsync<CustomMessage>("custom_message");
+        snackbar.Add("Custom message updated.");
+    }
+}
+
+<div class="row">
+    <div class="col-md-6 mx-auto">
+        <MudPaper Class="p-3" Elevation="25">
+            <MudText Typo="Typo.body1" Color="Color.Primary">Custom text message</MudText>
+            <MudTextField Class="mb-3" T="string" @bind-Value="@msg.Message" Immediate Variant="Variant.Outlined" Lines="5" />
+            <MudAlert Severity="Severity.Info">
+                You can customize your message but do not remove the #student# and #subject# as they will be change programmatically.
+            </MudAlert>
+            <MudToolBar Dense Class="p-0 m-0">
+                <MudSpacer/>
+                <MudButton Class="mt-3" OnClick="SaveMsg" Disabled="string.IsNullOrEmpty(msg.Message)" Variant="Variant.Filled" Size="Size.Small" Color="Color.Primary" StartIcon="@Icons.Rounded.Save">Save</MudButton>
+            </MudToolBar>
+        </MudPaper>
+    </div>
+</div>

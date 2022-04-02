@@ -1,4 +1,5 @@
 ﻿
+using Client.Data;
 using System;
 
 namespace Client.Models
@@ -13,7 +14,7 @@ namespace Client.Models
 
         public User()
         {
-            Id = Guid.NewGuid().ToString();
+            Id = Guid.NewGuid().ToURLGuid();
         }
     }
 }

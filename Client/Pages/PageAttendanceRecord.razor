@@ -62,6 +62,7 @@
         records = records.Where(x => x.DateAttended == _selectedDate.Value).ToList();
         presentCount = records.Where(x => x.IsPresent).Count();
         absentCount = records.Where(x => !x.IsPresent).Count();
+        await InvokeAsync(StateHasChanged);
     }
 
     async Task DateChanged(DateTime? d)
@@ -80,6 +81,13 @@
         }
         await InitializeRecords();
     }
+
+    async Task NotifyParentsClick()
+    {
+        var d = await dialog.Show<DialogSendCustomMessage>("Notify Parents", new DialogOptions() { MaxWidth = MaxWidth.ExtraSmall }).Result;
+        
+    }
+
 }
 <MudToolBar Dense Class="mb-3 p-0">
     <MudButton OnClick="@(()=> nav.NavigateTo($"sections/{sectionId}/{subjectId}"))" StartIcon="@Icons.Rounded.ArrowBackIos" Size="Size.Small" Color="Color.Primary">Back</MudButton>
@@ -93,18 +101,31 @@
             <MudText Class="mb-3" Typo="Typo.subtitle1">@sub.SubjectName</MudText>
         </MudPaper>
     </div>
-    <div class="col-md-4">
-        <MudDatePicker Date="_selectedDate" Margin="Margin.None" TitleDateFormat="MM dd" Orientation="Orientation.Landscape" DateChanged="DateChanged" PickerVariant="PickerVariant.Static" Elevation="25" />
+    <div class="col-md-3">
+        <MudPaper Elevation="25" Class="p-2">
+            <MudHidden Breakpoint="Breakpoint.Xs">
+                <MudDatePicker Date="_selectedDate" Margin="Margin.None" DisableToolbar Variant="Variant.Text" Orientation="Orientation.Portrait" DateChanged="DateChanged" PickerVariant="PickerVariant.Static" Elevation="0" />
+            </MudHidden>
+            <MudHidden Breakpoint="Breakpoint.SmAndUp">
+                <MudDatePicker Date="_selectedDate" Margin="Margin.None" DisableToolbar Variant="Variant.Text" Orientation="Orientation.Portrait" DateChanged="DateChanged" PickerVariant="PickerVariant.Dialog" Elevation="0" />
+            </MudHidden>
+            <MudButton Class="mr-auto align-self-start" OnClick="@(()=> { _selectedDate = DateTime.Now.Date; })">Today</MudButton>
+        </MudPaper>
+
     </div>
-    <div class="col-md-8">
+    <div class="col-md-9">
         <MudPaper Class="p-3" Elevation="25">
             <MudToolBar Class="p-0 m-0" Dense>
                 <MudText Typo="Typo.h6" Color="Color.Primary">Students (@studentlist.Count)</MudText>
                 <MudSpacer />
                 <MudText Typo="Typo.h6" Color="Color.Primary">@_selectedDate.Value.ToString("MM-dd-yyyy")</MudText>
             </MudToolBar>
-            <MudText Color="Color.Default" Typo="Typo.caption">Present: @presentCount</MudText>
-            <MudText Class="ml-3" Color="Color.Default" Typo="Typo.caption">Absent: @absentCount</MudText>
+            <MudToolBar Class="p-0 m-0" Dense>
+                <MudText Color="Color.Default" Typo="Typo.caption">Present: @presentCount</MudText>
+                <MudText Class="ml-3" Color="Color.Default" Typo="Typo.caption">Absent: @absentCount</MudText>
+                <MudSpacer />
+                <MudButton Disabled="absentCount == 0" OnClick="NotifyParentsClick" StartIcon="@Icons.Rounded.Send" Size="Size.Small" Color="Color.Primary" Variant="Variant.Outlined">Notify Parents</MudButton>
+            </MudToolBar>
             @if (records != null)
             {
                 <MudList Clickable Dense>

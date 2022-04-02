@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Client.Data;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,7 +15,7 @@ namespace Client.Models
         public DateTime? DateAttended { get; set; }
         public AttendanceRecord()
         {
-            Id = Guid.NewGuid().ToString();
+            Id = Guid.NewGuid().ToURLGuid();
         }
     }
 }

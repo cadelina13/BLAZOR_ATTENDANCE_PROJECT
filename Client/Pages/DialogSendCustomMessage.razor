@@ -1,0 +1,31 @@
+﻿@code {
+    [CascadingParameter] MudDialogInstance _mudDialog { get; set; }
+    CustomMessage msg = new();
+    protected override async Task OnInitializedAsync()
+    {
+        if (!await localdb.ContainKeyAsync("custom_message"))
+            await localdb.SetItemAsync("custom_message", msg);
+
+        msg = await localdb.GetItemAsync<CustomMessage>("custom_message");
+        if (string.IsNullOrEmpty(msg.Message))
+            msg.Message = WebHeader.MESSAGE_PLACEHOLDER;
+
+    }
+
+    void Submit()
+    {
+        snackbar.Add("Insufficient balance.");
+        //_mudDialog.Close(DialogResult.Ok(true));
+    }
+    void Cancel() => _mudDialog.Cancel();
+}
+
+<MudDialog>
+    <DialogContent>
+        <MudText Typo="Typo.body1">@msg.Message</MudText>
+    </DialogContent>
+    <DialogActions>
+        <MudButton StartIcon="@Icons.Rounded.Close" Variant="Variant.Text" Color="Color.Default" Size="Size.Small" OnClick="Cancel">Cancel</MudButton>
+        <MudButton StartIcon="@Icons.Rounded.Send" Variant="Variant.Text" Color="Color.Primary" Size="Size.Small" OnClick="Submit">Send</MudButton>
+    </DialogActions>
+</MudDialog>

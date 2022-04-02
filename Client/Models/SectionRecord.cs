@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Client.Data;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,7 +14,7 @@ namespace Client.Models
         public string StudentId { get; set; }
         public SectionRecord()
         {
-            Id = Guid.NewGuid().ToString();
+            Id = Guid.NewGuid().ToURLGuid();
         }
     }
 }

@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Client.Data;
 
 namespace Client.Models
 {
@@ -17,7 +18,7 @@ namespace Client.Models
         public string ParentsPhoneNumber { get; set; }
         public Student()
         {
-            Id = Guid.NewGuid().ToString();
+            Id = Guid.NewGuid().ToURLGuid();
         }
     }
 }
