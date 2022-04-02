@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.32228.343
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32228.430
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Client", "Client\Client.csproj", "{7B7DF76E-866C-4FBA-B7C4-1298AF3C8523}"
 EndProject
@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SharedClass", "SharedClass\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Api", "Api\Api.csproj", "{9E30312C-167A-40E6-A7FC-68E6FE2A74F8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AttendanceApi", "AttendanceApi\AttendanceApi.csproj", "{8D275009-B816-4530-952C-9EA9C157713F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Api2", "Api2\Api2.csproj", "{7E97E48E-34CD-4A91-B842-C651B0127071}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,10 +29,10 @@ Global
 		{9E30312C-167A-40E6-A7FC-68E6FE2A74F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9E30312C-167A-40E6-A7FC-68E6FE2A74F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9E30312C-167A-40E6-A7FC-68E6FE2A74F8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8D275009-B816-4530-952C-9EA9C157713F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8D275009-B816-4530-952C-9EA9C157713F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8D275009-B816-4530-952C-9EA9C157713F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8D275009-B816-4530-952C-9EA9C157713F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7E97E48E-34CD-4A91-B842-C651B0127071}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7E97E48E-34CD-4A91-B842-C651B0127071}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7E97E48E-34CD-4A91-B842-C651B0127071}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7E97E48E-34CD-4A91-B842-C651B0127071}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
