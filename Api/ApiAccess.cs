@@ -21,22 +21,24 @@ namespace Api
         public static async Task<IActionResult> SendSMS([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req)
         {
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-
-            var result = JsonConvert.DeserializeObject<SMSModel>(requestBody);
-
-            
-            var client = new RestClient("https://api.movider.co/v1/sms");
-
-            var request = new RestRequest("", Method.Post);
-            request.RequestFormat = DataFormat.None;
-            request.AddHeader("Accept", "application/json");
-            request.AddHeader("Content-Type", "application/x-www-form-urlencoded");
-            string data = $"api_key={apiKey}&api_secret={apiSecret}&to={result.To}&text={result.Text}";
-            request.AddBody(data, "application/x-www-form-urlencoded");
-            var response = client.ExecuteAsync(request).Result;
-            //Console.WriteLine(response.Content.ToString());
-
-            return new OkObjectResult(response.Content.ToString());
+            var tasks = new List<Task>();
+            var result = JsonConvert.DeserializeObject<List<SMSModel>>(requestBody);
+            foreach (var i in result)
+            {
+                tasks.Add(Task.Run(() =>
+                {
+                    var client = new RestClient("https://api.movider.co/v1/sms");
+                    var request = new RestRequest("", Method.Post);
+                    request.RequestFormat = DataFormat.None;
+                    request.AddHeader("Accept", "application/json");
+                    request.AddHeader("Content-Type", "application/x-www-form-urlencoded");
+                    string data = $"api_key={apiKey}&api_secret={apiSecret}&to={i.To}&text={i.Text}";
+                    request.AddBody(data, "application/x-www-form-urlencoded");
+                    client.ExecuteAsync(request);
+                }));
+            }
+            await Task.WhenAll(tasks);
+            return new OkObjectResult(true);
         }
     }
 }
