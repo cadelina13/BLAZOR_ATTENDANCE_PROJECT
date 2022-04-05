@@ -15,7 +15,7 @@
     <DialogContent>
         <MudTextField Immediate @bind-Value="data.FistName" Label="First Name" Variant="Variant.Outlined" Lines="1" Class="mb-3" />
         <MudTextField Immediate @bind-Value="data.LastName" Label="Last Name" Variant="Variant.Outlined" Lines="1" Class="mb-3" />
-        <MudTextField Immediate @bind-Value="data.ParentsPhoneNumber" Label="Parent's Contact" Variant="Variant.Outlined" Lines="1" Class="mb-3" />
+        <MudTextField MaxLength="10" Required Counter="10" InputMode="InputMode.numeric" HelperText="10digit mobile number (ex. 9123456789)" Adornment="Adornment.Start" AdornmentText="+63" InputType="InputType.Number" Immediate @bind-Value="data.ParentsPhoneNumber" Label="Parent's Contact" Variant="Variant.Outlined" Lines="1" Class="mb-3" />
         <MudTextField Immediate @bind-Value="data.GradeLevel" T="int" Label="Grade Level" Variant="Variant.Outlined" Lines="1" Class="mb-3" />
     </DialogContent>
     <DialogActions>

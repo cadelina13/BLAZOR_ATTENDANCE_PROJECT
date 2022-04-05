@@ -40,7 +40,7 @@
                 var std = studentlist.Where(x => x.Id == rec.StudentId).FirstOrDefault();
                 var textMessage = msg.Message.Replace("#student#", $"{std.FistName} {std.LastName}");
 
-                string data = $"api_key={apiKey}&api_secret={apiSecret}&to={std.ParentsPhoneNumber}&text={textMessage}";
+                string data = $"api_key={apiKey}&api_secret={apiSecret}&to=63{std.ParentsPhoneNumber}&text={textMessage}";
                 var reqMessage = new HttpRequestMessage();
                 reqMessage.RequestUri = new Uri("https://api.movider.co/v1/sms");
                 reqMessage.Method = HttpMethod.Post;
