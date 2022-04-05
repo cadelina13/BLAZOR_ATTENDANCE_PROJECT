@@ -28,7 +28,26 @@
     protected override async Task OnInitializedAsync()
     {
         user = await localdb.GetItemAsync<User>(table.table_user);
+
     }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            user = await localdb.GetItemAsync<User>(table.table_user);
+            if (!user.IsVerified)
+            {
+                var d = await dialog.Show<DialogVerificationCode>("Authentication", new DialogOptions() { MaxWidth = MaxWidth.ExtraSmall, CloseButton = false }).Result;
+                if (!d.Cancelled)
+                {
+                    user = await localdb.GetItemAsync<User>(table.table_user);
+                    if (user.IsVerified)
+                        nav.NavigateTo(nav.BaseUri, true);
+                }
+            }
+        }
+    }
+
 
     void DrawerToggle()
     {
@@ -38,7 +57,7 @@
     async Task SignOut()
     {
         var d = await dialog.ShowMessageBox("Sign out", "You are about to end your session. Are you sure?", yesText: "Sign out", noText: "Cancel");
-        if(d.HasValue && d.Value)
+        if (d.HasValue && d.Value)
         {
             await localdb.ClearAsync();
             await Task.Delay(300);

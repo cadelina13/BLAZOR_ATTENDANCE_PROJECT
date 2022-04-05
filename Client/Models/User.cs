@@ -11,7 +11,7 @@ namespace Client.Models
         public string GivenName { get; set; }
         public string SurName { get; set; }
         public string PictureUri { get; set; }
-
+        public bool IsVerified { get; set; }
         public User()
         {
             Id = Guid.NewGuid().ToURLGuid();

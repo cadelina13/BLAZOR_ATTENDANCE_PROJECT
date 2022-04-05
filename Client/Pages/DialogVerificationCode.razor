@@ -1,0 +1,35 @@
+﻿@code {
+    [CascadingParameter] MudDialogInstance _mudDialog { get; set; }
+    public string txtCode { get; set; }
+    User user = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        user = await localdb.GetItemAsync<User>(table.table_user);
+    }
+
+    string invalidString = "";
+    async Task Submit()
+    {
+        invalidString = "";
+        if (txtCode.Equals(WebHeader.Passcode, StringComparison.Ordinal))
+        {
+            user.IsVerified = true;
+            await localdb.SetItemAsync(table.table_user, user);
+            _mudDialog.Close(DialogResult.Ok(true));
+            return;
+        }
+        invalidString = "Invalid passcode.";
+    }
+    void Cancel() => _mudDialog.Cancel();
+}
+
+<MudDialog>
+    <DialogContent>
+        <MudTextField Placeholder="******" Class="mb-4" InputType="InputType.Password" InputMode="InputMode.text" Immediate @bind-Value="txtCode" Label="Passcode" Variant="Variant.Outlined" Lines="1" />
+        <MudText Typo="Typo.caption" Color="Color.Secondary">@invalidString</MudText>
+    </DialogContent>
+    <DialogActions>
+        <MudButton StartIcon="@Icons.Rounded.LockOpen" Disabled="@(string.IsNullOrEmpty(txtCode))" Variant="Variant.Text" Color="Color.Primary" Size="Size.Small" OnClick="Submit">Validate</MudButton>
+    </DialogActions>
+</MudDialog>
