@@ -46,6 +46,7 @@ namespace Client
             builder.Services.AddBlazoredLocalStorage();
             builder.Services.AddSingleton<TableHelper>();
             builder.Services.AddTransient<DataAccess>();
+            
             await builder.Build().RunAsync();
         }
     }

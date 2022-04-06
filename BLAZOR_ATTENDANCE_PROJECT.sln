@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Client", "Client\Client.csp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SharedClass", "SharedClass\SharedClass.csproj", "{D990B08D-DEA5-4171-B92D-19A20213D480}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeDecryptor", "CodeDecryptor\CodeDecryptor.csproj", "{71B54E28-7D0A-40C7-B4BC-26824725133C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CodeDecryptor", "CodeDecryptor\CodeDecryptor.csproj", "{71B54E28-7D0A-40C7-B4BC-26824725133C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
