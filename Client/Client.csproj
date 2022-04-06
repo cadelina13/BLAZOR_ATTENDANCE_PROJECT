@@ -27,7 +27,6 @@
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication" Version="5.0.15" />
 		<PackageReference Include="MudBlazor" Version="5.2.4" />
 		<PackageReference Include="System.Net.Http.Json" Version="5.0.0" />
-		<PackageReference Include="RestSharp" Version="107.3.0" />
 		<PackageReference Include="Refit" Version="6.1.15" />
 		<PackageReference Include="Refit.HttpClientFactory" Version="6.1.15" />
 	</ItemGroup>

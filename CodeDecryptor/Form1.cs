@@ -8,45 +8,57 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using RestSharp;
+using System.Net.Http;
+using Newtonsoft;
+using System.Text.Json.Serialization;
 
 namespace CodeDecryptor
 {
-    public partial class Form1 : Form
+    public partial class frmMain : Form
     {
-        string key = "b14ca5898a4e4133bbce2ea2315a1916";
-        public Form1()
+        private static readonly string apiKey = "1vI6Ri0Ek3oAriAOlmKakibB9Lb";
+        private static readonly string apiSecret = "LQpj7KEpoyaUgHjqw8xuZ43sgxAF3y14Kuh9nF0t";
+        public frmMain()
         {
             InitializeComponent();
         }
 
-        string generateRandomCode()
-        {
-            Random r = new Random();
-            var x = r.Next(0, 1000000);
-            string s = x.ToString("D6");
-            return s;
-        }
-
         private void Form1_Load(object sender, EventArgs e)
         {
-            
+            Getbalance();
+        }
+        async void Getbalance()
+        {
+            btnRefresh.Enabled = false;
+            btnRefresh.Text = "Please wait...";
+            HttpClient http = new HttpClient();
+            string data = $"api_key={apiKey}&api_secret={apiSecret}";
+            var reqMessage = new HttpRequestMessage();
+            reqMessage.RequestUri = new Uri("https://api.movider.co/v1/balance");
+            reqMessage.Method = HttpMethod.Post;
+            reqMessage.Headers.Add("Accept", "application/json");
+            reqMessage.Content = new StringContent(data, System.Text.Encoding.UTF8, "application/x-www-form-urlencoded");
+            var postReq = await http.SendAsync(reqMessage);
+
+            var strjson = await postReq.Content.ReadAsStringAsync();
+            var a = Newtonsoft.Json.JsonConvert.DeserializeObject<BalanceViewModel>(strjson);
+            var remaining = a.amount / 0.006;
+            txtBalance.Text = $"{a.amount} {a.type}";
+            txtRemainingSMS.Text = $"{string.Format("{0:n0}", remaining)} SMS";
+            btnRefresh.Enabled = true;
+            btnRefresh.Text = "REFRESH";
         }
 
-        private void btnGenerate_Click(object sender, EventArgs e)
+        class BalanceViewModel
         {
-            txtRandomCode.Text = generateRandomCode();
-            txtEncrypt.Text = txtRandomCode.Text;
+            public string type { get; set; }
+            public double amount { get; set; }
         }
 
-        private void btnDecrypt_Click(object sender, EventArgs e)
+        private void btnRefresh_Click(object sender, EventArgs e)
         {
-            var str = CodeHandler.DecryptString(key, txtDecrypt.Text);
-            txtDecryptResult.Text = str;
-        }
-
-        private void btnEncrypt_Click(object sender, EventArgs e)
-        {
-            txtEncrypt.Text = CodeHandler.EncryptString(key, txtRandomCode.Text);
+            Getbalance();
         }
     }
 }
