@@ -8,7 +8,7 @@
 
     [CascadingParameter] MudDialogInstance _mudDialog { get; set; }
     [Parameter]
-    public string subjectName { get; set; }
+    public Subject sub { get; set; }
     [Parameter]
     public DateTime selectedDate { get; set; }
     [Parameter]
@@ -27,7 +27,7 @@
         msg = await localdb.GetItemAsync<CustomMessage>("custom_message");
         if (string.IsNullOrEmpty(msg.Message))
             msg.Message = WebHeader.MESSAGE_PLACEHOLDER;
-        msg.Message = msg.Message.Replace("#subject#", subjectName);
+        msg.Message = msg.Message.Replace("#subject#", sub.SubjectName);
     }
 
     async Task Submit()
@@ -39,7 +39,7 @@
             {
                 var std = studentlist.Where(x => x.Id == rec.StudentId).FirstOrDefault();
                 var textMessage = msg.Message.Replace("#student#", $"{std.FistName} {std.LastName}");
-
+                textMessage = $"{textMessage}\n\nSchedule: {DateTime.Today.Add(sub.Time.Value).ToString("MM-dd-yyyy hh:mm tt")}";
                 string data = $"api_key={apiKey}&api_secret={apiSecret}&to=63{std.ParentsPhoneNumber}&text={textMessage}";
                 var reqMessage = new HttpRequestMessage();
                 reqMessage.RequestUri = new Uri("https://api.movider.co/v1/sms");

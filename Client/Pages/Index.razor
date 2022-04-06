@@ -1,22 +1,49 @@
 ﻿@page "/"
-@using RestSharp 
-
 @code {
-    string sendTo = "";
-    string smsBody = "";
+    List<ChangeLog> changelist = new();
     protected override async Task OnInitializedAsync()
     {
-        WebHeader.TITLE = "Home";
+        WebHeader.TITLE = "Attendance System";
         await InvokeAsync(StateHasChanged);
+        changelist = new List<ChangeLog>()
+        {
 
-        
+            new ChangeLog
+            {
+                Description = "Subject's time schedule in the SMS notification.",
+                Date = "04-05-22"
+            },
+            new ChangeLog
+            {
+                Description = "Minor bugs fixed.",
+                Date = "04-04-22"
+            },
+            new ChangeLog
+            {
+                Description = "Implemented the sending of SMS automatically.",
+                Date = "04-04-22"
+            },
+            new ChangeLog
+            {
+                Description = "Add subject time.",
+                Date = "04-03-22"
+            }
+        };
 
     }
 }
 
-<h1>Automated Attendance Tracker</h1>
+<MudText Typo="Typo.h4">Change log</MudText>
 
-<p>
-    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-</p>
+<MudTimeline TimelinePosition="TimelinePosition.Start" DisableModifiers>
+    @foreach (var i in changelist)
+    {
+        <MudTimelineItem Color="Color.Info">
+            <MudText Typo="Typo.button">@i.Description</MudText>
+            <MudText Typo="Typo.body2" Class="mud-text-secondary">@i.Date</MudText>
+        </MudTimelineItem>
+    }
+</MudTimeline>
+
+
 

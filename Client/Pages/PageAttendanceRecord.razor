@@ -87,7 +87,7 @@
         var listabsent = records.Where(x => !x.IsPresent).ToList();
 
         var d = await dialog.Show<DialogSendCustomMessage>("Notify Parents",
-            new DialogParameters() { ["studentlist"] = studentlist, ["listabsent"] = listabsent, ["subjectName"] = sub.SubjectName, ["selectedDate"] = _selectedDate.Value, ["selectedTime"] = sub.Time },
+            new DialogParameters() { ["studentlist"] = studentlist, ["listabsent"] = listabsent, ["sub"] = sub, ["selectedDate"] = _selectedDate.Value, ["selectedTime"] = sub.Time },
             new DialogOptions() { MaxWidth = MaxWidth.ExtraSmall }).Result;
         if (!d.Cancelled)
         {
@@ -108,7 +108,7 @@
             <MudText Class="mb-3" Typo="Typo.subtitle1">@sub.SubjectName</MudText>
         </MudPaper>
     </div>
-    <div class="col-md-3">
+    <div class="col-md-4">
         <MudPaper Elevation="25" Class="p-2">
             <MudHidden Breakpoint="Breakpoint.Xs">
                 <MudDatePicker Date="_selectedDate" Margin="Margin.None" DisableToolbar Variant="Variant.Text" Orientation="Orientation.Portrait" DateChanged="DateChanged" PickerVariant="PickerVariant.Static" Elevation="0" />
@@ -120,7 +120,7 @@
         </MudPaper>
 
     </div>
-    <div class="col-md-9">
+    <div class="col-md-8">
         <MudPaper Class="p-3" Elevation="25">
             <MudToolBar Class="p-0 m-0" Dense>
                 <MudText Typo="Typo.h6" Color="Color.Primary">Students (@studentlist.Count)</MudText>
