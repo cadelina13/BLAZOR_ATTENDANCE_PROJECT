@@ -1,6 +1,6 @@
 {
-  "name": "Client",
-  "short_name": "Attendance",
+  "name": "Attendance System",
+  "short_name": "AS",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#ffffff",

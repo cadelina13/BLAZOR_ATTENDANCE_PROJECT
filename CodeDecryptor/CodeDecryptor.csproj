@@ -5,13 +5,10 @@
     <TargetFramework>net5.0-windows</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
   </PropertyGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\SharedClass\SharedClass.csproj" />
-  </ItemGroup>
-
 	<ItemGroup>
-		<PackageReference Include="RestSharp" Version="107.3.0" />
+		<PackageReference Include="ILMerge" Version="3.0.29" />
 	</ItemGroup>
-
+	<Target Name="ILMerge">
+		<!-- the ILMergePath property points to the location of ILMerge.exe console application -->
+		<Exec Command="$(ILMergeConsolePath) Bin\Release\CodeDecryptor.exe  /out:CodeDecryptor.exe Bin\Release\x64\CodeDecryptor.dll Bin\Release\x64\CodeDecryptor.runtimeconfig.json" />	</Target>
 </Project>

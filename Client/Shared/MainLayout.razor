@@ -42,7 +42,7 @@
                 {
                     user = await localdb.GetItemAsync<User>(table.table_user);
                     if (user.IsVerified)
-                        nav.NavigateTo(nav.BaseUri, true);
+                        nav.NavigateTo(nav.BaseUri);
                 }
             }
         }

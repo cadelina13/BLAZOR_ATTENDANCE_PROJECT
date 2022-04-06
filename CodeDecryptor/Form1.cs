@@ -1,5 +1,4 @@
-﻿using SharedClass;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -8,9 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using RestSharp;
 using System.Net.Http;
-using Newtonsoft;
 using System.Text.Json.Serialization;
 
 namespace CodeDecryptor
@@ -42,7 +39,7 @@ namespace CodeDecryptor
             var postReq = await http.SendAsync(reqMessage);
 
             var strjson = await postReq.Content.ReadAsStringAsync();
-            var a = Newtonsoft.Json.JsonConvert.DeserializeObject<BalanceViewModel>(strjson);
+            var a = System.Text.Json.JsonSerializer.Deserialize<BalanceViewModel>(strjson);
             var remaining = a.amount / 0.006;
             txtBalance.Text = $"{a.amount} {a.type}";
             txtRemainingSMS.Text = $"{string.Format("{0:n0}", remaining)} SMS";
