@@ -1,6 +1,6 @@
 ﻿@using Newtonsoft.Json
-@using System.Net.Http.Headers 
-@inject HttpClient http 
+@using System.Net.Http.Headers
+@inject HttpClient http
 @code {
     private static readonly string apiKey = "1vI6Ri0Ek3oAriAOlmKakibB9Lb";
     private static readonly string apiSecret = "LQpj7KEpoyaUgHjqw8xuZ43sgxAF3y14Kuh9nF0t";
@@ -36,18 +36,22 @@
         {
             tasks.Add(Task.Run(() =>
             {
-                var std = studentlist.Where(x => x.Id == rec.StudentId).FirstOrDefault();
-                var textMessage = msg.Message.Replace("#student#", $"{std.FistName} {std.LastName}");
-                textMessage = $"{textMessage}\n\nSchedule: {DateTime.Today.Add(sub.Time.Value).ToString("MM-dd-yyyy hh:mm tt")}";
-                string data = $"api_key={apiKey}&api_secret={apiSecret}&to=63{std.ParentsPhoneNumber}&text={textMessage}";
-                var reqMessage = new HttpRequestMessage();
-                reqMessage.RequestUri = new Uri("https://api.movider.co/v1/sms");
-                reqMessage.Method = HttpMethod.Post;
-                reqMessage.Headers.Add("Accept", "application/json");
-                reqMessage.Content = new StringContent(data, System.Text.Encoding.UTF8, "application/x-www-form-urlencoded");
-                http.SendAsync(reqMessage);
+                try
+                {
+                    var std = studentlist.Where(x => x.Id == rec.StudentId).FirstOrDefault();
+                    var textMessage = msg.Message.Replace("#student#", $"{std.FistName} {std.LastName}");
+                    textMessage = $"{textMessage}\n\nSchedule: {DateTime.Today.Add(sub.Time.Value).ToString("MM-dd-yyyy hh:mm tt")}";
+                    string data = $"api_key={apiKey}&api_secret={apiSecret}&to=63{std.ParentsPhoneNumber}&text={textMessage}";
+                    var reqMessage = new HttpRequestMessage();
+                    reqMessage.RequestUri = new Uri("https://api.movider.co/v1/sms");
+                    reqMessage.Method = HttpMethod.Post;
+                    reqMessage.Headers.Add("Accept", "application/json");
+                    reqMessage.Content = new StringContent(data, System.Text.Encoding.UTF8, "application/x-www-form-urlencoded");
+                    http.SendAsync(reqMessage);
+                }
+                catch (Exception e) { }
 
-                @*var client = new RestClient("https://api.movider.co/v1/sms");
+            @*var client = new RestClient("https://api.movider.co/v1/sms");
                 var request = new RestRequest("", Method.Post);
                 request.RequestFormat = DataFormat.None;
                 request.AddHeader("Accept", "application/json");
@@ -58,7 +62,7 @@
             }));
         }
         await Task.WhenAll(tasks);
-        
+
         _mudDialog.Close(DialogResult.Ok(true));
     }
     void Cancel() => _mudDialog.Cancel();
