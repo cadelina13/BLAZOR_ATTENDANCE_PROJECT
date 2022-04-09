@@ -1,22 +1,30 @@
 ﻿@code {
     [CascadingParameter] MudDialogInstance _mudDialog { get; set; }
+    User user;
+
+
     [Parameter]
     public List<Student> current_studentlist { get; set; }
-    List<Student> studentlist;
+    [Parameter]
+    public string subjectId { get; set; }
+
+    List<Student> studentlist = new();
     List<Student> selectedstudents = new();
     public string txtSearch { get; set; } = "";
     protected override async Task OnInitializedAsync()
     {
+        user = await localdb.GetItemAsync<User>(table.table_user);
         await LoadData();
     }
 
     async Task LoadData()
     {
-        studentlist = new();
-        studentlist = (await db.GetList<Student>(table.table_student)).Where(x => !current_studentlist.Select(x => x.Id).Contains(x.Id)).ToList(); ;
-        if (studentlist == null) studentlist = new();
+        var idlist = current_studentlist.Select(x => x.Id).ToList();
+        //var stdlist = await _db.GetStudentList(user.Email);
+        studentlist = (await _db.GetStudentFilter(idlist)).OrderBy(x => x.FistName).ToList();
+
         if (!string.IsNullOrEmpty(txtSearch))
-            studentlist = studentlist.Where(x => x.FistName.Contains(txtSearch, StringComparison.OrdinalIgnoreCase) || x.LastName.Contains(txtSearch, StringComparison.OrdinalIgnoreCase)).ToList();
+            studentlist = studentlist.Where(x => x.FistName.Contains(txtSearch, StringComparison.OrdinalIgnoreCase) || x.LastName.Contains(txtSearch, StringComparison.OrdinalIgnoreCase)).OrderBy(x => x.FistName).ToList();
     }
     async Task SelectStudent(Student data)
     {
@@ -31,21 +39,23 @@
         {
             selectedstudents.Add(data);
         }
-        studentlist = (await db.GetList<Student>(table.table_student)).Where(x => !current_studentlist.Select(x => x.Id).Contains(x.Id)).ToList(); ;
+        studentlist = (await _db.GetStudentList(user.Email)).Where(x => !current_studentlist.Select(x => x.Id).Contains(x.Id)).OrderBy(x=>x.FistName).ToList(); ;
     }
 
 
-    void Submit()
+    async void Submit()
     {
         var data = new List<SubjectRecord>();
         foreach (var i in selectedstudents)
         {
             data.Add(new SubjectRecord()
             {
-                StudentId = i.Id
+                StudentId = i.Id,
+                SubjectId = subjectId
             });
         }
-        _mudDialog.Close(DialogResult.Ok(data));
+        await _db.SaveSubjectRecordList(data);
+        _mudDialog.Close(DialogResult.Ok(true));
     }
     void Cancel() => _mudDialog.Cancel();
 }

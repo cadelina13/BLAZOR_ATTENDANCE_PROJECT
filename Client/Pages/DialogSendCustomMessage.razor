@@ -28,42 +28,21 @@
             msg.Message = WebHeader.MESSAGE_PLACEHOLDER;
         msg.Message = msg.Message.Replace("#subject#", sub.SubjectName);
     }
-
+    bool IsSaving = false;
     async Task Submit()
     {
-        var tasks = new List<Task>();
-        foreach (var rec in listabsent)
-        {
-            tasks.Add(Task.Run(() =>
-            {
-                try
-                {
-                    var std = studentlist.Where(x => x.Id == rec.StudentId).FirstOrDefault();
-                    var textMessage = msg.Message.Replace("#student#", $"{std.FistName} {std.LastName}");
-                    textMessage = $"{textMessage}\n\nSchedule: {DateTime.Today.Add(sub.Time.Value).ToString("MM-dd-yyyy hh:mm tt")}";
-                    string data = $"api_key={apiKey}&api_secret={apiSecret}&to=63{std.ParentsPhoneNumber}&text={textMessage}";
-                    var reqMessage = new HttpRequestMessage();
-                    reqMessage.RequestUri = new Uri("https://api.movider.co/v1/sms");
-                    reqMessage.Method = HttpMethod.Post;
-                    reqMessage.Headers.Add("Accept", "application/json");
-                    reqMessage.Content = new StringContent(data, System.Text.Encoding.UTF8, "application/x-www-form-urlencoded");
-                    http.SendAsync(reqMessage);
-                }
-                catch (Exception e) { }
-
-            @*var client = new RestClient("https://api.movider.co/v1/sms");
-                var request = new RestRequest("", Method.Post);
-                request.RequestFormat = DataFormat.None;
-                request.AddHeader("Accept", "application/json");
-                request.AddHeader("Content-Type", "application/x-www-form-urlencoded");
-                string data = $"api_key={apiKey}&api_secret={apiSecret}&to={std.ParentsPhoneNumber}&text={msg.Message}";
-                request.AddBody(data, "application/x-www-form-urlencoded");
-                client.ExecuteAsync(request);*@
-            }));
-        }
-        await Task.WhenAll(tasks);
-
+        IsSaving = true;
+        var data = new SendSMSViewModel();
+        data.listabsent = listabsent;
+        data.selectedDate = selectedDate;
+        data.selectedTime = selectedTime;
+        data.sub = sub;
+        data.msg = msg;
+        await _db.SendCustomSMS(data);
+        IsSaving = false;
         _mudDialog.Close(DialogResult.Ok(true));
+
+
     }
     void Cancel() => _mudDialog.Cancel();
 }

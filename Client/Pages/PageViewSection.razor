@@ -1,5 +1,7 @@
 ﻿@page "/sections/{sectionId}"
 @code {
+    User user;
+
     [Parameter]
     public string sectionId { get; set; }
     Section sec = new();
@@ -9,40 +11,38 @@
     protected override async Task OnInitializedAsync()
     {
         WebHeader.TITLE = "Subjects";
+        user = await localdb.GetItemAsync<User>(table.table_user);
+
         await LoadData();
     }
     async Task LoadData()
     {
-        sec = (await db.GetList<Section>(table.table_section)).Where(x => x.Id == sectionId).FirstOrDefault();
-        listofsubjects = (await db.GetList<Subject>(table.table_subject)).Where(x => x.SectionId == sectionId).ToList();
-        records = await db.GetList<SubjectRecord>(table.table_subject_record);
+        sec = await _db.GetSection(sectionId);
+        listofsubjects = await _db.GetListSubject(user.Email, sectionId);
+        var tasks = new List<Task>();
+        foreach (var i in listofsubjects)
+        {
+            tasks.Add(Task.Run(async () =>
+            {
+                var a = await _db.GetSubjectRecord(i.Id);
+                records.AddRange(a);
+            }));
+        }
+        await Task.WhenAll(tasks);
     }
     async Task OnAddClick()
     {
         var d = await dialog.Show<DialogAddSubject>("Add subject",
+            new DialogParameters() { ["sectionId"] = sectionId},
             new DialogOptions() { MaxWidth = MaxWidth.ExtraSmall }).Result;
         if (!d.Cancelled)
         {
-            var all = await db.GetList<Subject>(table.table_subject);
             var data = (Subject)d.Data;
             data.SectionId = sectionId;
-            if (all == null) all = new();
-            all.Add(data);
-            await db.SaveRecord<List<Subject>>(table.table_subject, all);
+            await LoadData();
             snackbar.Add($"{data.SubjectName} successfully added to the list.");
         }
         await LoadData();
-    }
-
-    async Task RemoveStudentClick(string selectedId)
-    {
-        var d = await dialog.ShowMessageBox("Confirmation", "You are about to remove this student", yesText: "Remove", noText: "Cancel");
-        if (d.HasValue && d.Value)
-        {
-
-            await LoadData();
-        }
-
     }
 
 }
@@ -71,9 +71,9 @@
                             <MudText Typo="Typo.caption">@stdcount students</MudText>
                         }
                         <MudSpacer />
-                        @if (i.Time.HasValue)
+                        @if (i.Time is not null)
                         {
-                            <MudText Typo="Typo.caption">@DateTime.Today.Add(i.Time.Value).ToString("hh:mm tt")</MudText>
+                            <MudText Typo="Typo.caption">@i.Time</MudText>
                         }
                     </MudToolBar>
                     <MudButton OnClick="@(()=> nav.NavigateTo($"{nav.BaseUri}sections/{sectionId}/{i.Id}"))" Class="mt-3" DisableElevation Variant="Variant.Filled" Size="Size.Small" Color="Color.Primary" FullWidth>View</MudButton>

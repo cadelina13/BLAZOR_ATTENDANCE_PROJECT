@@ -12,6 +12,7 @@ using MudBlazor;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Authorization;
 using Client.Data;
+using Refit;
 
 namespace Client
 {
@@ -46,7 +47,18 @@ namespace Client
             builder.Services.AddBlazoredLocalStorage();
             builder.Services.AddSingleton<TableHelper>();
             builder.Services.AddTransient<DataAccess>();
-            
+#if DEBUG
+            builder.Services.AddRefitClient<IDataAccess>().ConfigureHttpClient(c =>
+            {
+                c.BaseAddress = new Uri("https://localhost:44328/attendance");
+            });
+#else
+            builder.Services.AddRefitClient<IDataAccess>().ConfigureHttpClient(c =>
+            {
+                c.BaseAddress = new Uri("https://intranet.misamisoriental.gov.ph/efms_api/attendance");
+            });
+#endif
+
             await builder.Build().RunAsync();
         }
     }

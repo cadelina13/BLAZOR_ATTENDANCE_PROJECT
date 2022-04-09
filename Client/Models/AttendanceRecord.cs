@@ -9,6 +9,7 @@ namespace Client.Models
     public class AttendanceRecord
     {
         public string Id { get; set; }
+        public string UserId { get; set; }
         public string StudentId { get; set; }
         public string SubjectId { get; set; }
         public bool IsPresent { get; set; }

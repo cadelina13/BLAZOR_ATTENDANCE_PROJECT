@@ -12,6 +12,7 @@ namespace Client.Models
     public class Student
     {
         public string Id { get; set; }
+        public string UserId { get; set; }
         public string FistName { get; set; }
         public string LastName { get; set; }
         public int GradeLevel { get; set; }

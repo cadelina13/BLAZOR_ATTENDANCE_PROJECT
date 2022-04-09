@@ -4,7 +4,7 @@
     public string sectionId { get; set; }
     [Parameter]
     public string subjectId { get; set; }
-
+    User user;
     List<Student> studentlist = new();
     List<SubjectRecord> SubjectRecords = new();
 
@@ -13,15 +13,12 @@
 
     Section sec = new();
     Subject sub = new();
-    string tbl_recordid;
+    //string tbl_recordid;
     protected override async Task OnInitializedAsync()
     {
         WebHeader.TITLE = "Attendance Records";
-        tbl_recordid = $"{table.table_attend_record}{sectionId}{subjectId}";
-
-        sec = (await db.GetList<Section>(table.table_section)).Where(x => x.Id == sectionId).FirstOrDefault();
-        sub = (await db.GetList<Subject>(table.table_subject)).Where(x => x.Id == subjectId).FirstOrDefault();
-
+        //tbl_recordid = $"{table.table_attend_record}{sectionId}{subjectId}";
+        user = await localdb.GetItemAsync<User>(table.table_user);
         await LoadData();
     }
 
@@ -29,62 +26,58 @@
     {
         studentlist = new();
         SubjectRecords = new();
-        var stdlist = await db.GetList<Student>(table.table_student);
-        SubjectRecords = (await db.GetList<SubjectRecord>(table.table_subject_record)).Where(x => x.SubjectId == subjectId).ToList();
+        sec = await _db.GetSection(sectionId);
+        sub = await _db.GetSubject(subjectId);
+        SubjectRecords = await _db.GetSubjectRecord(subjectId);
         if (SubjectRecords == null) SubjectRecords = new();
+        var tasks = new List<Task>();
         foreach (var i in SubjectRecords)
         {
-            var std = stdlist.Where(x => x.Id == i.StudentId).FirstOrDefault();
-            studentlist.Add(std);
-        }
-        await InitializeRecords();
-    }
-    List<AttendanceRecord> records = new();
-    async Task InitializeRecords()
-    {
-
-        records = new();
-        records = await db.GetList<AttendanceRecord>(tbl_recordid);
-        foreach (var i in studentlist)
-        {
-            var rec = records.Where(x => x.DateAttended.Value.Date == _selectedDate.Value.Date && x.SubjectId == subjectId && x.StudentId == i.Id).FirstOrDefault();
-            if (rec == null)
+            tasks.Add(Task.Run(async () =>
             {
-                rec = new();
-                rec.StudentId = i.Id;
-                rec.SubjectId = subjectId;
-                rec.DateAttended = _selectedDate.Value.Date;
-                rec.IsPresent = false;
-                records.Add(rec);
-                await db.SaveRecord(tbl_recordid, records);
-            }
+                var std = await _db.GetStudent(i.StudentId);
+                studentlist.Add(std);
+            }));
         }
-        records = records.Where(x => x.DateAttended == _selectedDate.Value).ToList();
-        presentCount = records.Where(x => x.IsPresent).Count();
-        absentCount = records.Where(x => !x.IsPresent).Count();
+        await Task.WhenAll(tasks);
+
+        await GetAttendanceRecord();
+    }
+    //List<AttendanceRecord> records = new();
+    List<AttendanceRecord> listattrecords;
+    async Task GetAttendanceRecord()
+    {
+        var param = new AttendanceViewModel();
+        param.userId = user.Email;
+        param.subjectId = subjectId;
+        param.selectedDate = _selectedDate.Value;
+        listattrecords = await _db.GetAttendanceRecords(param);
+        if (_selectedDate.HasValue)
+        {
+            presentCount = listattrecords.Where(x => x.IsPresent).Count();
+            absentCount = listattrecords.Where(x => !x.IsPresent).Count();
+        }
         await InvokeAsync(StateHasChanged);
     }
 
     async Task DateChanged(DateTime? d)
     {
         _selectedDate = d;
-        await InitializeRecords();
+        await GetAttendanceRecord();
     }
-    async Task OnStudentClick(string recId)
+    async Task OnStudentClick(AttendanceRecord data)
     {
-        records = await db.GetList<AttendanceRecord>(tbl_recordid);
-        var rec = records.Where(x => x.Id == recId).FirstOrDefault();
-        if (rec != null)
-        {
-            rec.IsPresent = !rec.IsPresent;
-            await db.SaveRecord(tbl_recordid, records);
-        }
-        await InitializeRecords();
+        var post = await _db.UpdateAttendanceRecord(data);
+        await GetAttendanceRecord();
+    }
+    async void SaveAttRecord(AttendanceRecord data)
+    {
+        await _db.SaveAttendanceRecord(data);
     }
 
     async Task NotifyParentsClick()
     {
-        var listabsent = records.Where(x => !x.IsPresent).ToList();
+        var listabsent = listattrecords.Where(x => !x.IsPresent).ToList();
 
         var d = await dialog.Show<DialogSendCustomMessage>("Notify Parents",
             new DialogParameters() { ["studentlist"] = studentlist, ["listabsent"] = listabsent, ["sub"] = sub, ["selectedDate"] = _selectedDate.Value, ["selectedTime"] = sub.Time },
@@ -133,16 +126,23 @@
                 <MudSpacer />
                 <MudButton Disabled="absentCount == 0" OnClick="NotifyParentsClick" StartIcon="@Icons.Rounded.Send" Size="Size.Small" Color="Color.Primary" Variant="Variant.Outlined">Notify Parents</MudButton>
             </MudToolBar>
-            @if (records != null)
+            @if (listattrecords != null)
             {
                 <MudList Clickable Dense>
-                    @foreach (var i in records)
+                    @foreach (var i in studentlist)
                     {
-                        var std = studentlist.Where(x => x.Id == i.StudentId).FirstOrDefault();
-                        if (std != null)
+                        var attrec = listattrecords.Where(x => x.StudentId == i.Id).FirstOrDefault();
+                        if (attrec == null)
                         {
-                            <MudListItem OnClick="@(()=> OnStudentClick(i.Id))" Avatar="@(i.IsPresent ? Icons.Rounded.Check : Icons.Rounded.PersonOutline)" IconColor="@(i.IsPresent ? Color.Success : Color.Secondary)" AvatarClass="bg-white">@std.FistName @std.LastName</MudListItem>
+                            attrec = new();
+                            attrec.SubjectId = subjectId;
+                            attrec.StudentId = i.Id;
+                            attrec.UserId = user.Email;
+                            attrec.DateAttended = _selectedDate.Value.Date;
+                            attrec.IsPresent = false;
+                            SaveAttRecord(attrec);
                         }
+                        <MudListItem OnClick="@(()=> OnStudentClick(attrec))" Avatar="@(attrec.IsPresent ? Icons.Rounded.Check : Icons.Rounded.PersonOutline)" IconColor="@(attrec.IsPresent ? Color.Success : Color.Secondary)" AvatarClass="bg-white">@i.FistName @i.LastName</MudListItem>
                     }
                 </MudList>
             }

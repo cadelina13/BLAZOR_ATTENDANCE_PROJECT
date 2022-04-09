@@ -1,9 +1,31 @@
 ﻿@code {
     [CascadingParameter] MudDialogInstance _mudDialog { get; set; }
+    [Parameter]
+    public string sectionId { get; set; }
     Subject data = new();
-    void Submit()
+    public TimeSpan? _selectedTime { get; set; }
+    User user;
+    protected override async Task OnInitializedAsync()
     {
-        _mudDialog.Close(DialogResult.Ok(data));
+        user = await localdb.GetItemAsync<User>(table.table_user);
+    }
+
+    bool IsSaving = false;
+    async void Submit()
+    {
+        IsSaving = true;
+        data.UserId = user.Email;
+        data.SectionId = sectionId;
+        if (_selectedTime.HasValue)
+        {
+            data.Time = DateTime.Today.Add(_selectedTime.Value).ToString("hh:mm tt");
+        }
+        var a = await _db.SaveSubject(data);
+        if (a != null)
+        {
+            _mudDialog.Close(DialogResult.Ok(a));
+        }
+        IsSaving = false;
     }
     void Cancel() => _mudDialog.Cancel();
 }
@@ -12,14 +34,14 @@
     <DialogContent>
         <MudTextField Immediate @bind-Value="data.SubjectName" Label="Subject Name" Variant="Variant.Outlined" Lines="1" Class="mb-3" />
         <MudHidden Breakpoint="Breakpoint.Xs">
-            <MudTimePicker PickerVariant="PickerVariant.Static" Variant="Variant.Outlined" />
+            <MudTimePicker AmPm PickerVariant="PickerVariant.Static" TimeChanged="@((t)=> _selectedTime = t.Value )" Variant="Variant.Outlined" />
         </MudHidden>
         <MudHidden Breakpoint="Breakpoint.SmAndUp">
-            <MudTimePicker Label="Time" AmPm TimeChanged="@((t)=> data.Time = t.Value )" PickerVariant="PickerVariant.Dialog" Variant="Variant.Outlined" />
+            <MudTimePicker Label="Time" AmPm TimeChanged="@((t)=> _selectedTime = t.Value )" PickerVariant="PickerVariant.Dialog" Variant="Variant.Outlined" />
         </MudHidden>
     </DialogContent>
     <DialogActions>
         <MudButton StartIcon="@Icons.Rounded.Close" Variant="Variant.Text" Color="Color.Default" Size="Size.Small" OnClick="Cancel">Cancel</MudButton>
-        <MudButton StartIcon="@Icons.Rounded.Save" Disabled="@(string.IsNullOrEmpty(data.SubjectName))" Variant="Variant.Text" Color="Color.Primary" Size="Size.Small" OnClick="Submit">Save</MudButton>
+        <MudButton StartIcon="@Icons.Rounded.Save" Disabled="@(string.IsNullOrEmpty(data.SubjectName) || IsSaving)" Variant="Variant.Text" Color="Color.Primary" Size="Size.Small" OnClick="Submit">Save</MudButton>
     </DialogActions>
 </MudDialog>

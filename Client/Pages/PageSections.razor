@@ -5,9 +5,14 @@
     protected override async Task OnInitializedAsync()
     {
         WebHeader.TITLE = "Sections";
-        //user = await db.GetRecord<User>(table.table_user, "");
-        sectionlist = await db.GetList<Section>(table.table_section);
+        user = await localdb.GetItemAsync<User>(table.table_user);
+        await LoadData();
+    }
+    async Task LoadData()
+    {
+        sectionlist = await _db.GetListSection(user.Email);
         if (sectionlist == null) sectionlist = new();
+        await InvokeAsync(StateHasChanged);
     }
 
     async Task OnAddClick()
@@ -16,9 +21,7 @@
         if (!d.Cancelled)
         {
             var data = (Section)d.Data;
-            if (sectionlist == null) sectionlist = new();
-            sectionlist.Add(data);
-            await db.SaveRecord<List<Section>>(table.table_section, sectionlist);
+            await LoadData();
             snackbar.Add($"{data.Name} successfully added to the list.");
         }
     }

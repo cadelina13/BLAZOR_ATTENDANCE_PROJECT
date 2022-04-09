@@ -3,10 +3,16 @@
     [Parameter]
     public Student data { get; set; }
 
-
-    void Submit()
+    bool IsSaving = false;
+    async void Submit()
     {
-        _mudDialog.Close(DialogResult.Ok(data));
+        IsSaving = true;
+        var rs = await _db.UpdateStudent(data);
+        if (rs != null)
+        {
+            _mudDialog.Close(DialogResult.Ok(rs));
+        }
+        IsSaving = false;
     }
     void Cancel() => _mudDialog.Cancel();
 }
@@ -20,6 +26,6 @@
     </DialogContent>
     <DialogActions>
         <MudButton StartIcon="@Icons.Rounded.Close" Variant="Variant.Text" Color="Color.Default" Size="Size.Small" OnClick="Cancel">Cancel</MudButton>
-        <MudButton StartIcon="@Icons.Rounded.Save" Disabled="@(string.IsNullOrEmpty(data.FistName) || string.IsNullOrEmpty(data.FistName))" Variant="Variant.Text" Color="Color.Primary" Size="Size.Small" OnClick="Submit">Save</MudButton>
+        <MudButton StartIcon="@Icons.Rounded.Save" Disabled="@(string.IsNullOrEmpty(data.FistName) || string.IsNullOrEmpty(data.LastName) || IsSaving)" Variant="Variant.Text" Color="Color.Primary" Size="Size.Small" OnClick="Submit">Save</MudButton>
     </DialogActions>
 </MudDialog>

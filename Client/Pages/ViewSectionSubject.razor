@@ -19,38 +19,30 @@
     {
         studentlist = new();
         SubjectRecords = new();
-        var stdlist = await db.GetList<Student>(table.table_student);
-        sec = (await db.GetList<Section>(table.table_section)).Where(x => x.Id == sectionId).FirstOrDefault();
-        sub = (await db.GetList<Subject>(table.table_subject)).Where(x => x.Id == subjectId).FirstOrDefault();
-        //sec = (await localdb.GetItemAsync<List<Section>>(table.sections)).Where(x => x.Id == sectionId).FirstOrDefault();
-        //SubjectRecords = await localdb.GetItemAsync<List<SubjectRecord>>($"{table.section}{sectionId}");
-        SubjectRecords = (await db.GetList<SubjectRecord>(table.table_subject_record)).Where(x=>x.SubjectId == subjectId).ToList();
+        sec = await _db.GetSection(sectionId);
+        sub = await _db.GetSubject(subjectId);
+        SubjectRecords = await _db.GetSubjectRecord(subjectId);
         if (SubjectRecords == null) SubjectRecords = new();
+        var tasks = new List<Task>();
         foreach (var i in SubjectRecords)
         {
-            var std = stdlist.Where(x => x.Id == i.StudentId).FirstOrDefault();
-            studentlist.Add(std);
+            tasks.Add(Task.Run(async () =>
+            {
+                var std = await _db.GetStudent(i.StudentId);
+                studentlist.Add(std);
+            }));
         }
-
+        await Task.WhenAll(tasks);
     }
     async Task OnAddClick()
     {
         var d = await dialog.Show<DialogBrowseStudent>("Student list",
-            new DialogParameters() { ["current_studentlist"] = studentlist },
+            new DialogParameters() { ["current_studentlist"] = studentlist, ["subjectId"] = sub.Id },
             new DialogOptions() { MaxWidth = MaxWidth.ExtraSmall }).Result;
         if (!d.Cancelled)
         {
-            var data = (List<SubjectRecord>)d.Data;
-            foreach (var i in data)
-            {
-                i.SubjectId = subjectId;
-            }
-            var allsub = await db.GetList<SubjectRecord>(table.table_subject_record);
-            allsub.AddRange(data);
-            //await localdb.SetItemAsync($"{table.section_records}{sectionId}", SubjectRecords);
-            await db.SaveRecord<List<SubjectRecord>>(table.table_subject_record, allsub);
+            await LoadData();
         }
-        await LoadData();
     }
 
     async Task RemoveStudentClick(string selectedId)
@@ -58,9 +50,7 @@
         var d = await dialog.ShowMessageBox("Confirmation", "You are about to remove this student", yesText: "Remove", noText: "Cancel");
         if (d.HasValue && d.Value)
         {
-            var a = SubjectRecords.Where(x => x.StudentId == selectedId).FirstOrDefault();
-            SubjectRecords.Remove(a);
-            await db.SaveRecord<List<SubjectRecord>>(table.table_subject_record, SubjectRecords);
+            await _db.RemoveStudentFromSubect(selectedId, subjectId);
             await LoadData();
         }
 
@@ -71,10 +61,7 @@
         var d = await dialog.ShowMessageBox("Confirmation", "You are about to remove this student", yesText: "Remove", noText: "Cancel");
         if (d.HasValue && d.Value)
         {
-            var listsec = await db.GetList<Section>(table.table_section);
-            var toRemove = listsec.Where(x => x.Id == sec.Id).FirstOrDefault();
-            listsec.Remove(toRemove);
-            await db.SaveRecord<List<Section>>(table.table_section, listsec);
+            await _db.RemoveSection(sectionId);
             snackbar.Add($"{sec.Name} has been removed.");
             nav.NavigateTo("/sections");
         }

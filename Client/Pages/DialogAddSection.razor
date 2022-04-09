@@ -1,11 +1,23 @@
 ﻿@code {
     [CascadingParameter] MudDialogInstance _mudDialog { get; set; }
     Section data = new();
-
-
-    void Submit()
+    User user;
+    protected override async Task OnInitializedAsync()
     {
-        _mudDialog.Close(DialogResult.Ok(data));
+        user = await localdb.GetItemAsync<User>(table.table_user);
+    }
+
+    bool IsSaving = false;
+    async void Submit()
+    {
+        IsSaving = true;
+        data.UserId = user.Email;
+        var post = await _db.SaveSection(data);
+        if (post != null)
+        {
+            _mudDialog.Close(DialogResult.Ok(data));
+        }
+        IsSaving = false;
     }
     void Cancel() => _mudDialog.Cancel();
 }
@@ -16,6 +28,6 @@
     </DialogContent>
     <DialogActions>
         <MudButton StartIcon="@Icons.Rounded.Close" Variant="Variant.Text" Color="Color.Default" Size="Size.Small" OnClick="Cancel">Cancel</MudButton>
-        <MudButton StartIcon="@Icons.Rounded.Save" Disabled="@(string.IsNullOrEmpty(data.Name))" Variant="Variant.Text" Color="Color.Primary" Size="Size.Small" OnClick="Submit">Save</MudButton>
+        <MudButton StartIcon="@Icons.Rounded.Save" Disabled="@(string.IsNullOrEmpty(data.Name) || IsSaving)" Variant="Variant.Text" Color="Color.Primary" Size="Size.Small" OnClick="Submit">Save</MudButton>
     </DialogActions>
 </MudDialog>

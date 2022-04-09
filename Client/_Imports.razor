@@ -17,8 +17,9 @@
 @using Data
 @using Pages
 @using SharedClass 
+@using ViewModels 
 
-@inject DataAccess db
+@inject IDataAccess _db
 @inject ILocalStorageService localdb
 @inject ISnackbar snackbar
 @inject IDialogService dialog

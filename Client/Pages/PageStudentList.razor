@@ -1,17 +1,21 @@
 ﻿@page "/studentlist"
 @code {
+    User user;
+
     List<Student> studentlist;
     protected override async Task OnInitializedAsync()
     {
         WebHeader.TITLE = "Students";
+        user = await localdb.GetItemAsync<User>(table.table_user);
         await LoadData();
     }
 
     async Task LoadData()
     {
         studentlist = null;
-        studentlist = await db.GetList<Student>(table.table_student);
+        studentlist = await _db.GetStudentList(user.Email);
         if (studentlist == null) studentlist = new();
+        await InvokeAsync(StateHasChanged);
     }
     async Task OnAddClick()
     {
@@ -20,8 +24,6 @@
         {
             var data = (Student)d.Data;
             if (studentlist == null) studentlist = new();
-            studentlist.Add(data);
-            await db.SaveRecord<List<Student>>(table.table_student, studentlist);
             await LoadData();
             snackbar.Add($"{data.FistName} successfully added to the list.");
         }
@@ -34,10 +36,7 @@
         if (!d.Cancelled)
         {
             var rs = (Student)d.Data;
-            data.FistName = rs.FistName;
-            data.LastName = rs.LastName;
-            data.ParentsPhoneNumber = rs.ParentsPhoneNumber;
-            await db.SaveRecord<List<Student>>(table.table_student, studentlist);
+            await LoadData();
         }
     }
 }

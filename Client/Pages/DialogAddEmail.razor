@@ -1,10 +1,17 @@
 ﻿@code {
     [CascadingParameter] MudDialogInstance _mudDialog { get; set; }
     User data = new();
-
-    void Submit()
+    bool isSaving = false;
+    async void Submit()
     {
-        _mudDialog.Close(DialogResult.Ok(data));
+        isSaving = true;
+        var user = await _db.RegisterEmail(data.Email);
+        if (!string.IsNullOrEmpty(user.Email))
+        {
+            await localdb.SetItemAsync<User>(table.table_user, data);
+            _mudDialog.Close(DialogResult.Ok(data));
+        }
+        isSaving = false;
     }
     void Cancel() => _mudDialog.Cancel();
 }
@@ -14,6 +21,6 @@
         <MudTextField InputType="InputType.Email" InputMode="InputMode.email" Immediate @bind-Value="data.Email" Label="Email Address" Variant="Variant.Outlined" Lines="1" />
     </DialogContent>
     <DialogActions>
-        <MudButton StartIcon="@Icons.Rounded.Save" Disabled="@(string.IsNullOrEmpty(data.Email))" Variant="Variant.Text" Color="Color.Primary" Size="Size.Small" OnClick="Submit">Register</MudButton>
+        <MudButton StartIcon="@Icons.Rounded.Save" Disabled="@(string.IsNullOrEmpty(data.Email) || isSaving)" Variant="Variant.Text" Color="Color.Primary" Size="Size.Small" OnClick="Submit">Register</MudButton>
     </DialogActions>
 </MudDialog>
