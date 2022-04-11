@@ -1,0 +1,34 @@
+﻿@code {
+    [CascadingParameter] MudDialogInstance _mudDialog { get; set; }
+    [Parameter]
+    public Section data { get; set; }
+    User user;
+    protected override async Task OnInitializedAsync()
+    {
+        user = await localdb.GetItemAsync<User>(table.table_user);
+    }
+
+    bool IsSaving = false;
+    async void Submit()
+    {
+        IsSaving = true;
+        data.UserId = user.Email;
+        var post = await _db.UpdateSection(data);
+        if (post != null)
+        {
+            _mudDialog.Close(DialogResult.Ok(data));
+        }
+        IsSaving = false;
+    }
+    void Cancel() => _mudDialog.Cancel();
+}
+
+<MudDialog>
+    <DialogContent>
+        <MudTextField Immediate @bind-Value="data.Name" Label="Section Name" Variant="Variant.Outlined" Lines="1" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton StartIcon="@Icons.Rounded.Close" Variant="Variant.Text" Color="Color.Default" Size="Size.Small" OnClick="Cancel">Cancel</MudButton>
+        <MudButton StartIcon="@Icons.Rounded.Save" Disabled="@(string.IsNullOrEmpty(data.Name) || IsSaving)" Variant="Variant.Text" Color="Color.Primary" Size="Size.Small" OnClick="Submit">Save</MudButton>
+    </DialogActions>
+</MudDialog>

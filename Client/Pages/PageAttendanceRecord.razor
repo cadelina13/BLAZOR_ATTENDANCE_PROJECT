@@ -62,14 +62,24 @@
 
     async Task DateChanged(DateTime? d)
     {
+        if (IsUpdatingStatus) return;
+
+        IsUpdatingStatus = true;
         _selectedDate = d;
         await GetAttendanceRecord();
+        IsUpdatingStatus = false;
     }
+    bool IsUpdatingStatus = false;
     async Task OnStudentClick(AttendanceRecord data)
     {
+        IsUpdatingStatus = true;
+        await InvokeAsync(StateHasChanged);
         var post = await _db.UpdateAttendanceRecord(data);
         await GetAttendanceRecord();
+        IsUpdatingStatus = false;
+        await InvokeAsync(StateHasChanged);
     }
+
     async void SaveAttRecord(AttendanceRecord data)
     {
         await _db.SaveAttendanceRecord(data);
@@ -98,23 +108,35 @@
     <div class="col-md-12 pb-5">
         <MudPaper Class="p-3" Elevation="25">
             <MudText Color="Color.Primary" Typo="Typo.h6">@sec.Name</MudText>
-            <MudText Class="mb-3" Typo="Typo.subtitle1">@sub.SubjectName</MudText>
+            <MudToolBar Dense Class="p-0 m-0">
+                <MudText Typo="Typo.subtitle1">@sub.SubjectName</MudText>
+                <MudSpacer />
+                <MudText Typo="Typo.subtitle1">@sub.Time</MudText>
+            </MudToolBar>
         </MudPaper>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-4 pb-3">
         <MudPaper Elevation="25" Class="p-2">
             <MudHidden Breakpoint="Breakpoint.Xs">
-                <MudDatePicker Date="_selectedDate" Margin="Margin.None" DisableToolbar Variant="Variant.Text" Orientation="Orientation.Portrait" DateChanged="DateChanged" PickerVariant="PickerVariant.Static" Elevation="0" />
+                <MudDatePicker Disabled="IsUpdatingStatus" Date="_selectedDate" Margin="Margin.None" DisableToolbar Variant="Variant.Text" Orientation="Orientation.Portrait" DateChanged="DateChanged" PickerVariant="PickerVariant.Static" Elevation="0" />
             </MudHidden>
             <MudHidden Breakpoint="Breakpoint.SmAndUp">
-                <MudDatePicker Date="_selectedDate" Margin="Margin.None" DisableToolbar Variant="Variant.Text" Orientation="Orientation.Portrait" DateChanged="DateChanged" PickerVariant="PickerVariant.Dialog" Elevation="0" />
+                <MudDatePicker Disabled="IsUpdatingStatus" Date="_selectedDate" Margin="Margin.None" DisableToolbar Variant="Variant.Text" Orientation="Orientation.Portrait" DateChanged="DateChanged" PickerVariant="PickerVariant.Dialog" Elevation="0" />
             </MudHidden>
-            <MudButton Class="mr-auto align-self-start" OnClick="@(()=> { _selectedDate = DateTime.Now.Date; })">Today</MudButton>
+            <MudButton Disabled="IsUpdatingStatus" Class="mr-auto align-self-start" OnClick="@(()=> { _selectedDate = DateTime.Now.Date; })">Today</MudButton>
         </MudPaper>
 
     </div>
     <div class="col-md-8">
         <MudPaper Class="p-3" Elevation="25">
+            @if (IsUpdatingStatus)
+            {
+                <MudProgressLinear Indeterminate Color="Color.Primary" Size="Size.Small" />
+            }
+            else
+            {
+                <div class="mb-1 mt-1"/>
+            }
             <MudToolBar Class="p-0 m-0" Dense>
                 <MudText Typo="Typo.h6" Color="Color.Primary">Students (@studentlist.Count)</MudText>
                 <MudSpacer />
@@ -124,7 +146,7 @@
                 <MudText Color="Color.Default" Typo="Typo.caption">Present: @presentCount</MudText>
                 <MudText Class="ml-3" Color="Color.Default" Typo="Typo.caption">Absent: @absentCount</MudText>
                 <MudSpacer />
-                <MudButton Disabled="absentCount == 0" OnClick="NotifyParentsClick" StartIcon="@Icons.Rounded.Send" Size="Size.Small" Color="Color.Primary" Variant="Variant.Outlined">Notify Parents</MudButton>
+                <MudButton Disabled="absentCount == 0 || IsUpdatingStatus" OnClick="NotifyParentsClick" StartIcon="@Icons.Rounded.Send" Size="Size.Small" Color="Color.Primary" Variant="Variant.Outlined">Notify Parents</MudButton>
             </MudToolBar>
             @if (listattrecords != null)
             {
@@ -142,7 +164,7 @@
                             attrec.IsPresent = false;
                             SaveAttRecord(attrec);
                         }
-                        <MudListItem OnClick="@(()=> OnStudentClick(attrec))" Avatar="@(attrec.IsPresent ? Icons.Rounded.Check : Icons.Rounded.PersonOutline)" IconColor="@(attrec.IsPresent ? Color.Success : Color.Secondary)" AvatarClass="bg-white">@i.FistName @i.LastName</MudListItem>
+                        <MudListItem Disabled="IsUpdatingStatus" OnClick="@(()=> OnStudentClick(attrec))" Avatar="@(attrec.IsPresent ? Icons.Rounded.Check : Icons.Rounded.PersonOutline)" IconColor="@(attrec.IsPresent ? Color.Success : Color.Secondary)" AvatarClass="bg-white">@i.FistName @i.LastName</MudListItem>
                     }
                 </MudList>
             }

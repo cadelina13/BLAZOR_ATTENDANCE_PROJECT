@@ -55,5 +55,10 @@
             }
         }
 
+        if (nav.Uri == $"{nav.BaseUri}")
+        {
+            nav.NavigateTo($"{nav.BaseUri}sections");
+            return;
+        }
     }
 }

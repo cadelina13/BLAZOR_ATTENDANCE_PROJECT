@@ -7,7 +7,7 @@
 
 
     Section sec = new();
-    Subject sub = new();
+    Subject sub;
     List<Student> studentlist = new();
     List<SubjectRecord> SubjectRecords = new();
     protected override async Task OnInitializedAsync()
@@ -67,6 +67,38 @@
         }
     }
 
+    async Task DeleteClick()
+    {
+        if (studentlist.Count > 0)
+        {
+            snackbar.Add("You need to remove the students before you can remove this section.");
+            return;
+        }
+        var d = await dialog.ShowMessageBox("Confirmation", "You are about to delete this section. Are you sure?", yesText: "Delete", noText: "Cancel");
+        if (d.HasValue && d.Value)
+        {
+            var rs = await _db.DeleteSubject(subjectId);
+            if (!string.IsNullOrEmpty(rs))
+            {
+                nav.NavigateTo($"{nav.BaseUri}sections/{sectionId}");
+                return;
+            }
+            snackbar.Add("Something went wrong. Please try again.");
+        }
+    }
+    async Task EditClick()
+    {
+        var d = await dialog.Show<DialogEditSubject>("Edit",
+            new DialogParameters() { ["data"] = sub },
+            new DialogOptions() { MaxWidth = MaxWidth.ExtraSmall }).Result;
+        if (!d.Cancelled)
+        {
+            sub = null;
+            await InvokeAsync(StateHasChanged);
+            sub = await _db.GetSubject(subjectId);
+            snackbar.Add("Subject updated.");
+        }
+    }
 }
 
 
@@ -76,18 +108,28 @@
     <MudTooltip Text="Browse Student" Placement="Placement.Start">
         <MudIconButton OnClick="OnAddClick" Variant="Variant.Filled" Icon="@Icons.Rounded.PersonAdd" Color="Color.Primary" Size="Size.Small" />
     </MudTooltip>
+    <MudTooltip Text="Attendance records" Placement="Placement.Left">
+        <MudIconButton Class="ml-3" OnClick="@(()=> nav.NavigateTo($"{nav.BaseUri}sections/{sectionId}/{subjectId}/attendance"))" Icon="@Icons.Rounded.CalendarToday" Variant="Variant.Filled" Size="Size.Small" Color="Color.Primary" />
+    </MudTooltip>
 </MudToolBar>
 <div class="row">
     <div class="col-md-12">
         <MudPaper Class="p-3 mb-3" Elevation="25">
-            <MudToolBar Class="p-0 m-0" Dense>
+            @if (sub == null || sec == null)
+            {
+                <MudProgressLinear Size="Size.Small" Color="Color.Primary" Indeterminate />
+            }
+            else
+            {
                 <MudText Color="Color.Primary" Typo="Typo.h6">@sec.Name</MudText>
-                <MudSpacer/>
-                <MudTooltip Text="Attendance records" Placement="Placement.Left">
-                    <MudIconButton OnClick="@(()=> nav.NavigateTo($"{nav.BaseUri}sections/{sectionId}/{subjectId}/attendance"))" Icon="@Icons.Rounded.CalendarToday" Variant="Variant.Filled" Size="Size.Small" Color="Color.Primary" />
-                </MudTooltip>
-            </MudToolBar>
-            <MudText Class="mb-3" Typo="Typo.subtitle1">@sub.SubjectName</MudText>
+                <MudToolBar Dense Class="m-0 p-0">
+                    <MudMenu Class="mr-1" Variant="Variant.Text" Icon="@Icons.Rounded.MoreVert" Size="Size.Small" Color="Color.Default">
+                        <MudMenuItem OnClick="EditClick" Class="text-success">Edit</MudMenuItem>
+                        <MudMenuItem OnClick="DeleteClick" Class="text-danger">Delete</MudMenuItem>
+                    </MudMenu>
+                    <MudText Typo="Typo.subtitle1">@sub.SubjectName</MudText>
+                </MudToolBar>
+            }
             <MudTable Outlined Items="studentlist" T="Student" SortLabel="Sort by" Hover Dense>
                 <HeaderContent>
                     <MudTh><MudTableSortLabel SortBy="new Func<Student, object>(x=>x.FistName)">First Name</MudTableSortLabel></MudTh>

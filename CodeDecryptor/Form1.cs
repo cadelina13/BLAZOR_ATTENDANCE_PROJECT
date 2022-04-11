@@ -57,5 +57,10 @@ namespace CodeDecryptor
         {
             Getbalance();
         }
+
+        private void usersToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

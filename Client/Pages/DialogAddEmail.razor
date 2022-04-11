@@ -8,7 +8,7 @@
         var user = await _db.RegisterEmail(data.Email);
         if (!string.IsNullOrEmpty(user.Email))
         {
-            await localdb.SetItemAsync<User>(table.table_user, data);
+            await localdb.SetItemAsync<User>(table.table_user, user);
             _mudDialog.Close(DialogResult.Ok(data));
         }
         isSaving = false;
@@ -18,7 +18,7 @@
 
 <MudDialog>
     <DialogContent>
-        <MudTextField InputType="InputType.Email" InputMode="InputMode.email" Immediate @bind-Value="data.Email" Label="Email Address" Variant="Variant.Outlined" Lines="1" />
+        <MudTextField InputType="InputType.Email" InputMode="InputMode.email" Immediate @bind-Value="data.Email" Label="Email" Variant="Variant.Outlined" Lines="1" />
     </DialogContent>
     <DialogActions>
         <MudButton StartIcon="@Icons.Rounded.Save" Disabled="@(string.IsNullOrEmpty(data.Email) || isSaving)" Variant="Variant.Text" Color="Color.Primary" Size="Size.Small" OnClick="Submit">Register</MudButton>

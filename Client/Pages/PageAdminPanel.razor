@@ -1,0 +1,125 @@
+﻿@page "/admin"
+@code {
+    BalanceViewModel smsData = new();
+    bool IsAdmin = false;
+    bool isReloading = false;
+    protected override async Task OnInitializedAsync()
+    {
+        var d = await dialog.Show<DialogAdminVerification>("Authentication", new DialogOptions() { MaxWidth = MaxWidth.ExtraSmall }).Result;
+        if (!d.Cancelled)
+        {
+            IsAdmin = true;
+            await GetBalance();
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+    async Task GetBalance()
+    {
+        isReloading = true;
+        smsData = await _db.GetSMSBalance();
+        isReloading = false;
+    }
+
+
+    private IEnumerable<User> pagedData;
+    private MudTable<User> _table;
+
+    private int totalItems;
+    private string searchString = null;
+
+    /// <summary>
+    /// Here we simulate getting the paged, filtered and ordered data from the server
+    /// </summary>
+    private async Task<TableData<User>> ServerReload(TableState state)
+    {
+        IEnumerable<User> data = await _db.GetListUsers();
+        data = data.Where(User =>
+        {
+            if (string.IsNullOrWhiteSpace(searchString))
+                return true;
+            if (User.Email.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                return true;
+            if (User.PIN.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                return true;
+            if (User.DateRegistered.ToLongDateString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                return true;
+            return false;
+        }).ToArray();
+        totalItems = data.Count();
+        switch (state.SortLabel)
+        {
+            case "Emails":
+                data = data.OrderByDirection(state.SortDirection, o => o.Email);
+                break;
+            case "PIN":
+                data = data.OrderByDirection(state.SortDirection, o => o.PIN);
+                break;
+            case "Registered":
+                data = data.OrderByDirection(state.SortDirection, o => o.DateRegistered);
+                break;
+        }
+
+        pagedData = data.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
+        return new TableData<User>() { TotalItems = totalItems, Items = pagedData };
+    }
+
+    private void OnSearch(string text)
+    {
+        searchString = text;
+        _table.ReloadServerData();
+    }
+}
+
+@if (IsAdmin)
+{
+    <div class="row">
+        <div class="col-md-3 pb-3">
+            <MudPaper Class="pt-3 pr-3 pl-3" Elevation="25">
+                @if (isReloading)
+                {
+                    <MudProgressLinear Indeterminate Size="Size.Small" Color="Color.Primary" />
+                }
+                <MudTextField Disabled="isReloading" Label="Balance" ReadOnly Text="@smsData.amount.ToString()" T="string" Adornment="Adornment.Start" AdornmentText="$" Variant="Variant.Outlined" Class="mb-3" />
+                <MudTextField Disabled="isReloading" Label="Remaining SMS" ReadOnly Text="@string.Format("{0:n0}", smsData.remaining_sms)" T="string" Variant="Variant.Outlined" />
+                <MudToolBar Class="p-0 m-0" Dense>
+                    <MudSpacer />
+                    <MudButton Disabled="isReloading" Color="Color.Success" OnClick="GetBalance" Size="Size.Small" Variant="Variant.Text" StartIcon="@Icons.Rounded.Refresh">Refresh</MudButton>
+                </MudToolBar>
+            </MudPaper>
+        </div>
+        <div class="col-md-9 pb-3">
+            <MudTable Elevation="25" ServerData="@(new Func<TableState, Task<TableData<User>>>(ServerReload))"
+                      Dense Hover Striped @ref="_table">
+                <ToolBarContent>
+                    <MudText Typo="Typo.h6">List of users</MudText>
+                    <MudSpacer />
+                    <MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
+                                  AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+                </ToolBarContent>
+                <HeaderContent>
+                    <MudTh><MudTableSortLabel SortLabel="Emails" T="User">Emails</MudTableSortLabel></MudTh>
+                    <MudTh Style="width:1%"><MudTableSortLabel SortLabel="PIN" T="User">PIN</MudTableSortLabel></MudTh>
+                    <MudTh><MudTableSortLabel SortLabel="Registered" T="User">Registered</MudTableSortLabel></MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Emails">@context.Email</MudTd>
+                    <MudTd DataLabel="PIN">@context.PIN</MudTd>
+                    <MudTd DataLabel="Registered">@context.DateRegistered.ToString("MM-dd-yyyy hh:mm tt")</MudTd>
+                </RowTemplate>
+                <NoRecordsContent>
+                    <MudText>No matching records found</MudText>
+                </NoRecordsContent>
+                <LoadingContent>
+                    <MudText>Loading...</MudText>
+                </LoadingContent>
+                <PagerContent>
+                    <MudTablePager />
+                </PagerContent>
+            </MudTable>
+        </div>
+    </div>
+}
+else
+{
+
+}

@@ -10,7 +10,7 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        @*var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
 
 
         if (Action == "logout-failed")
@@ -54,7 +54,7 @@
                 }
             }
             await localdb.SetItemAsync($"user{userId}", user);
-        }
+        }*@
 
     }
 }

@@ -4,7 +4,7 @@
 
     [Parameter]
     public string sectionId { get; set; }
-    Section sec = new();
+    Section sec;
     List<Subject> listofsubjects = new();
     List<SubjectRecord> records = new();
 
@@ -18,6 +18,7 @@
     async Task LoadData()
     {
         sec = await _db.GetSection(sectionId);
+
         listofsubjects = await _db.GetListSubject(user.Email, sectionId);
         var tasks = new List<Task>();
         foreach (var i in listofsubjects)
@@ -33,7 +34,7 @@
     async Task OnAddClick()
     {
         var d = await dialog.Show<DialogAddSubject>("Add subject",
-            new DialogParameters() { ["sectionId"] = sectionId},
+            new DialogParameters() { ["sectionId"] = sectionId },
             new DialogOptions() { MaxWidth = MaxWidth.ExtraSmall }).Result;
         if (!d.Cancelled)
         {
@@ -45,42 +46,92 @@
         await LoadData();
     }
 
+    async Task DeleteClick()
+    {
+        if(listofsubjects.Count > 0)
+        {
+            snackbar.Add("You need to remove the subjects before you can remove this section.");
+            return;
+        }
+        var d = await dialog.ShowMessageBox("Confirmation", "You are about to delete this section. Are you sure?", yesText: "Delete", noText: "Cancel");
+        if (d.HasValue && d.Value)
+        {
+            var rs = await _db.DeleteSection(sectionId);
+            if (!string.IsNullOrEmpty(rs))
+            {
+                nav.NavigateTo($"{nav.BaseUri}sections");
+                return;
+            }
+            snackbar.Add("Something went wrong. Please try again.");
+        }
+    }
+    async Task EditClick()
+    {
+        var d = await dialog.Show<DialogEditSection>("Edit",
+            new DialogParameters() { ["data"] = sec },
+            new DialogOptions() { MaxWidth = MaxWidth.ExtraSmall }).Result;
+        if (!d.Cancelled)
+        {
+            sec = null;
+            await InvokeAsync(StateHasChanged);
+            sec = await _db.GetSection(sectionId);
+            snackbar.Add("Section updated.");
+        }
+    }
 }
 
 <MudToolBar Dense Class="mb-3 p-0">
     <MudButton OnClick="@(()=> nav.NavigateTo("/sections"))" StartIcon="@Icons.Rounded.ArrowBackIos" Size="Size.Small" Color="Color.Primary">Back</MudButton>
     <MudSpacer />
-    <MudButton OnClick="OnAddClick" StartIcon="@Icons.Rounded.Edit" Size="Size.Small" Color="Color.Primary" Variant="Variant.Filled">Add Subject</MudButton>
 </MudToolBar>
 <MudPaper Elevation="25" Class="p-3">
-    <MudText Typo="Typo.h5" Class="mb-3" Color="Color.Primary">@sec.Name</MudText>
-    <div class="row">
-        @foreach (var i in listofsubjects)
-        {
-            var stdcount = records.Where(x => x.SubjectId == i.Id).Count();
-            <div class="col-md-3">
-                <MudPaper Outlined Class="p-3 m-1">
-                    <MudText Typo="Typo.h6">@i.SubjectName</MudText>
-                    <MudToolBar Dense Class="m-0 p-0">
-                        @if (stdcount <= 1)
-                        {
-                            <MudText Typo="Typo.caption">@stdcount student</MudText>
-                        }
-                        else
-                        {
-                            <MudText Typo="Typo.caption">@stdcount students</MudText>
-                        }
-                        <MudSpacer />
-                        @if (i.Time is not null)
-                        {
-                            <MudText Typo="Typo.caption">@i.Time</MudText>
-                        }
-                    </MudToolBar>
-                    <MudButton OnClick="@(()=> nav.NavigateTo($"{nav.BaseUri}sections/{sectionId}/{i.Id}"))" Class="mt-3" DisableElevation Variant="Variant.Filled" Size="Size.Small" Color="Color.Primary" FullWidth>View</MudButton>
-                </MudPaper>
-            </div>
-        }
-    </div>
+    @if (sec == null)
+    {
+        <MudProgressLinear Size="Size.Small" Color="Color.Primary" Indeterminate />
+    }
+    else
+    {
+        <MudToolBar Class="m-0 p-0" Dense>
+            <MudMenu Class="mr-1" Icon="@Icons.Rounded.MoreVert" Size="Size.Small" Color="Color.Default">
+                <MudMenuItem OnClick="EditClick" Class="text-success">Edit</MudMenuItem>
+                <MudMenuItem OnClick="DeleteClick" Class="text-danger">Delete</MudMenuItem>
+            </MudMenu>
+            <MudText Typo="Typo.h6" Color="Color.Primary">@sec.Name</MudText>
+            <MudSpacer />
+            <MudTooltip Text="Add Section" Placement="Placement.Start">
+                <MudIconButton OnClick="OnAddClick" Icon="@Icons.Rounded.AddCard" Size="Size.Small" Color="Color.Primary" Variant="Variant.Filled"/>
+            </MudTooltip>
+            
+        </MudToolBar>
+        <div class="row">
+            @foreach (var i in listofsubjects)
+            {
+                var stdcount = records.Where(x => x.SubjectId == i.Id).Count();
+                <div class="col-md-3">
+                    <MudPaper Outlined Class="p-3 m-1">
+                        <MudText Typo="Typo.h6">@i.SubjectName</MudText>
+                        <MudToolBar Dense Class="m-0 p-0">
+                            @if (stdcount <= 1)
+                            {
+                                <MudText Typo="Typo.caption">@stdcount student</MudText>
+                            }
+                            else
+                            {
+                                <MudText Typo="Typo.caption">@stdcount students</MudText>
+                            }
+                            <MudSpacer />
+                            @if (i.Time is not null)
+                            {
+                                <MudText Typo="Typo.caption">@i.Time</MudText>
+                            }
+                        </MudToolBar>
+                        <MudButton OnClick="@(()=> nav.NavigateTo($"{nav.BaseUri}sections/{sectionId}/{i.Id}"))" Class="mt-3" DisableElevation Variant="Variant.Filled" Size="Size.Small" Color="Color.Primary" FullWidth>View</MudButton>
+                    </MudPaper>
+                </div>
+            }
+        </div>
+    }
+
 </MudPaper>
 
 

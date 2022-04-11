@@ -12,7 +12,7 @@ namespace Client.ViewModels
         public List<AttendanceRecord> listabsent { get; set; }
         public Subject sub { get; set; }
         public DateTime selectedDate { get; set; }
-        public TimeSpan selectedTime { get; set; }
+        public string selectedTime { get; set; }
         public CustomMessage msg { get; set; }
     }
 }

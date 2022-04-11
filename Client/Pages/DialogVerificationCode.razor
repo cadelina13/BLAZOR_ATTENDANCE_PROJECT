@@ -12,7 +12,7 @@
     async Task Submit()
     {
         invalidString = "";
-        if (txtCode.Equals(WebHeader.Passcode, StringComparison.Ordinal))
+        if (txtCode.Equals(user.PIN, StringComparison.Ordinal))
         {
             user.IsVerified = true;
             await localdb.SetItemAsync(table.table_user, user);
@@ -26,10 +26,10 @@
 
 <MudDialog>
     <DialogContent>
-        <MudTextField Placeholder="******" Class="mb-4" InputType="InputType.Password" InputMode="InputMode.text" Immediate @bind-Value="txtCode" Label="Passcode" Variant="Variant.Outlined" Lines="1" />
+        <MudTextField Class="mb-4" InputType="InputType.Password" InputMode="InputMode.numeric" Immediate @bind-Value="txtCode" Label="PIN" Variant="Variant.Outlined" Lines="1" />
         <MudText Typo="Typo.caption" Color="Color.Secondary">@invalidString</MudText>
     </DialogContent>
     <DialogActions>
-        <MudButton StartIcon="@Icons.Rounded.LockOpen" Disabled="@(string.IsNullOrEmpty(txtCode))" Variant="Variant.Text" Color="Color.Primary" Size="Size.Small" OnClick="Submit">Validate</MudButton>
+        <MudButton StartIcon="@Icons.Rounded.Login" Disabled="@(string.IsNullOrEmpty(txtCode))" Variant="Variant.Text" Color="Color.Primary" Size="Size.Small" OnClick="Submit">Validate</MudButton>
     </DialogActions>
 </MudDialog>

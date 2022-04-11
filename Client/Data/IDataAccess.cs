@@ -78,5 +78,23 @@ namespace Client.Data
 
         [Post("/GetAttendanceRecords")]
         Task<List<AttendanceRecord>> GetAttendanceRecords(AttendanceViewModel param);
+
+        [Get("/GetSMSBalance")]
+        Task<BalanceViewModel> GetSMSBalance();
+
+        [Get("/GetListUsers")]
+        Task<List<User>> GetListUsers();
+
+        [Get("/DeleteSection/{sectionId}")]
+        Task<string> DeleteSection(string sectionId);
+
+        [Get("/DeleteSubject/{subjectId}")]
+        Task<string> DeleteSubject(string subjectId);
+
+        [Post("/UpdateSection")]
+        Task<Section> UpdateSection(Section data);
+
+        [Post("/UpdateSubject")]
+        Task<Subject> UpdateSubject(Subject data);
     }
 }

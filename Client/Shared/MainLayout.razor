@@ -12,7 +12,17 @@
     </MudAppBar>
     <MudDrawer @bind-Open="_drawerOpen" Elevation="25" Fixed>
         <MudDrawerHeader>
-            <MudText Typo="Typo.body1">@user.Email</MudText>
+            @if (user != null && !string.IsNullOrEmpty(user.Email))
+            {
+                if (user.Email.Length > 23)
+                {
+                    <MudText Typo="Typo.body1">@user.Email.Substring(0, 23) ...</MudText>
+                }
+                else
+                {
+                    <MudText Typo="Typo.body1">@user.Email</MudText>
+                }
+            }
         </MudDrawerHeader>
         <NavMenu />
     </MudDrawer>

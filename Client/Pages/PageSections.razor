@@ -29,13 +29,14 @@
 
 <div class="row">
     <div class="col-md-12">
+        <MudToolBar Dense Class="mb-3 p-0">
+            <MudSpacer />
+            <MudTooltip Placement="Placement.Start" Text="Add section">
+                <MudButton OnClick="OnAddClick" StartIcon="@Icons.Rounded.Edit" Size="Size.Small" Color="Color.Primary" Variant="Variant.Filled">Add Section</MudButton>
+            </MudTooltip>
+        </MudToolBar>
         <MudPaper Elevation="25" Class="p-3 mb-3">
-            <MudToolBar Dense Class="p-0 m-0">
-                <MudSpacer />
-                <MudTooltip Placement="Placement.Start" Text="Add section">
-                    <MudButton OnClick="OnAddClick" StartIcon="@Icons.Rounded.Edit" Size="Size.Small" Color="Color.Primary" Variant="Variant.Filled">Add Section</MudButton>
-                </MudTooltip>
-            </MudToolBar>
+
             @if (sectionlist == null)
             {
                 <MudProgressLinear Color="Color.Primary" Size="Size.Small" Indeterminate Class="mt-3" />
