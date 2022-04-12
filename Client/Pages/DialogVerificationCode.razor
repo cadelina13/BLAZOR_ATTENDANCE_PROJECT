@@ -9,6 +9,11 @@
     bool IsSendingCode = false;
     async Task btnSendCode()
     {
+        if (user.Email.Length != 10)
+        {
+            snackbar.Add("Invalid phone number.");
+            return;
+        }
         IsSendingCode = true;
         await InvokeAsync(StateHasChanged);
         user = await _db.RegisterEmail(user.Email);

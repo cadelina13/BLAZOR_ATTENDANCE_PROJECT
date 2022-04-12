@@ -6,6 +6,11 @@
     bool IsSaving = false;
     async void Submit()
     {
+        if (data.ParentsPhoneNumber.Length != 10)
+        {
+            snackbar.Add("Invalid phone number.");
+            return;
+        }
         IsSaving = true;
         var rs = await _db.UpdateStudent(data);
         if (rs != null)
@@ -21,11 +26,11 @@
     <DialogContent>
         <MudTextField Immediate @bind-Value="data.FistName" Label="First Name" Variant="Variant.Outlined" Lines="1" Class="mb-3" />
         <MudTextField Immediate @bind-Value="data.LastName" Label="Last Name" Variant="Variant.Outlined" Lines="1" Class="mb-3" />
-        <MudTextField MaxLength="10" Required Counter="10" InputMode="InputMode.numeric" HelperText="10digit mobile number (ex. 9123456789)" Adornment="Adornment.Start" AdornmentText="+63" InputType="InputType.Number" Immediate @bind-Value="data.ParentsPhoneNumber" Label="Parent's Contact" Variant="Variant.Outlined" Lines="1" Class="mb-3" />
+        <MudTextField MaxLength="10" Required Counter="10" InputMode="InputMode.numeric" HelperText="10 digits mobile number (ex. 9123456789)" Adornment="Adornment.Start" AdornmentText="+63" InputType="InputType.Number" Immediate @bind-Value="data.ParentsPhoneNumber" Label="Parent's Contact" Variant="Variant.Outlined" Lines="1" Class="mb-3" />
         <MudTextField Immediate @bind-Value="data.GradeLevel" T="int" Label="Grade Level" Variant="Variant.Outlined" Lines="1" Class="mb-3" />
     </DialogContent>
     <DialogActions>
         <MudButton StartIcon="@Icons.Rounded.Close" Variant="Variant.Text" Color="Color.Default" Size="Size.Small" OnClick="Cancel">Cancel</MudButton>
-        <MudButton StartIcon="@Icons.Rounded.Save" Disabled="@(string.IsNullOrEmpty(data.FistName) || string.IsNullOrEmpty(data.LastName) || IsSaving)" Variant="Variant.Text" Color="Color.Primary" Size="Size.Small" OnClick="Submit">Save</MudButton>
+        <MudButton StartIcon="@Icons.Rounded.Save" Disabled="@(string.IsNullOrEmpty(data.ParentsPhoneNumber) ||string.IsNullOrEmpty(data.FistName) || string.IsNullOrEmpty(data.LastName) || IsSaving)" Variant="Variant.Text" Color="Color.Primary" Size="Size.Small" OnClick="Submit">Save</MudButton>
     </DialogActions>
 </MudDialog>
