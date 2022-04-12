@@ -21,7 +21,10 @@
     {
         var idlist = current_studentlist.Select(x => x.Id).ToList();
         //var stdlist = await _db.GetStudentList(user.Email);
-        studentlist = (await _db.GetStudentFilter(idlist)).OrderBy(x => x.FistName).ToList();
+        var param = new GetStudentViewModel();
+        param.idlist = idlist;
+        param.userId = user != null ? user.Email : "";
+        studentlist = (await _db.GetStudentFilter(param)).OrderBy(x => x.FistName).ToList();
 
         if (!string.IsNullOrEmpty(txtSearch))
             studentlist = studentlist.Where(x => x.FistName.Contains(txtSearch, StringComparison.OrdinalIgnoreCase) || x.LastName.Contains(txtSearch, StringComparison.OrdinalIgnoreCase)).OrderBy(x => x.FistName).ToList();

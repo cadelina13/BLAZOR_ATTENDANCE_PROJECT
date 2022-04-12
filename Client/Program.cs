@@ -23,7 +23,10 @@ namespace Client
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.RootComponents.Add<App>("#app");
 
-            builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+            builder.Services.AddHttpClient("httpClient", sp =>
+            {
+                new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) };
+            });
             builder.Services.AddOidcAuthentication(options =>
             {
                 // Configure your authentication provider options here.
@@ -56,6 +59,9 @@ namespace Client
             builder.Services.AddRefitClient<IDataAccess>().ConfigureHttpClient(c =>
             {
                 c.BaseAddress = new Uri("https://intranet.misamisoriental.gov.ph/efms_api/attendance");
+                c.DefaultRequestHeaders.Add("Access-Control-Allow-Origin", "*");
+                c.DefaultRequestHeaders.Add("Access-Control-Allow-Credentials", "true");
+                c.DefaultRequestHeaders.Add("Access-Control-Allow-Headers", "Access-Control-Allow-Origin,Content-Type");
             });
 #endif
 

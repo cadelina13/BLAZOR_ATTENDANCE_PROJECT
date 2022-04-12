@@ -1,0 +1,38 @@
+﻿@code {
+    [CascadingParameter] MudDialogInstance _mudDialog { get; set; }
+    [Parameter]
+    public User user { get; set; }
+
+    public int smsAdd { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+
+    }
+
+    bool IsSaving = false;
+    async void Submit()
+    {
+        IsSaving = true;
+        user.SMS = user.SMS + smsAdd;
+        var std = await _db.UpdateUser(user);
+        if (std != null)
+        {
+            _mudDialog.Close(DialogResult.Ok(std));
+        }
+        IsSaving = false;
+    }
+    void Cancel() => _mudDialog.Cancel();
+}
+
+<MudDialog>
+    <DialogContent>
+        <MudTextField MaxLength="10" Required InputMode="InputMode.numeric" ReadOnly Adornment="Adornment.Start" AdornmentText="+63" InputType="InputType.Number" Immediate @bind-Value="user.Email" Label="Phone" Variant="Variant.Outlined" Lines="1" Class="mb-3" />
+        <MudTextField Immediate @bind-Value="user.SMS" ReadOnly T="int" Label="Remaining SMS" Variant="Variant.Outlined" Lines="1" Class="mb-3" />
+        <hr />
+        <MudTextField Immediate @bind-Value="smsAdd" Required T="int" Label="Additional" Variant="Variant.Outlined" Lines="1" Class="mb-3" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton StartIcon="@Icons.Rounded.Close" Variant="Variant.Text" Color="Color.Default" Size="Size.Small" OnClick="Cancel">Cancel</MudButton>
+        <MudButton StartIcon="@Icons.Rounded.Save" Disabled="@(IsSaving || smsAdd == 0)" Variant="Variant.Text" Color="Color.Primary" Size="Size.Small" OnClick="Submit">Save</MudButton>
+    </DialogActions>
+</MudDialog>

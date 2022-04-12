@@ -18,10 +18,14 @@
     public List<Student> studentlist { get; set; }
 
     CustomMessage msg = new();
+    User user;
+
     protected override async Task OnInitializedAsync()
     {
         if (!await localdb.ContainKeyAsync("custom_message"))
             await localdb.SetItemAsync("custom_message", msg);
+        user = await localdb.GetItemAsync<User>(table.table_user);
+        user = await _db.GetUser(user.Email);
 
         msg = await localdb.GetItemAsync<CustomMessage>("custom_message");
         if (string.IsNullOrEmpty(msg.Message))
@@ -31,6 +35,11 @@
     bool IsSaving = false;
     async Task Submit()
     {
+        if(user.SMS == 0)
+        {
+            snackbar.Add("Insufficient balance.");
+            return;
+        }
         IsSaving = true;
         var data = new SendSMSViewModel();
         data.listabsent = listabsent;
@@ -49,6 +58,10 @@
 
 <MudDialog>
     <DialogContent>
+        @if (user == null)
+        {
+            <MudProgressLinear Color="Color.Primary" Size="Size.Small" Indeterminate/>
+        }
         <MudText Typo="Typo.body1">@msg.Message</MudText>
         <hr />
         <MudText Color="Color.Primary" Typo="Typo.body1">Subject Schedule</MudText>
@@ -57,6 +70,6 @@
     </DialogContent>
     <DialogActions>
         <MudButton StartIcon="@Icons.Rounded.Close" Variant="Variant.Text" Color="Color.Default" Size="Size.Small" OnClick="Cancel">Cancel</MudButton>
-        <MudButton StartIcon="@Icons.Rounded.Send" Variant="Variant.Text" Color="Color.Primary" Size="Size.Small" OnClick="Submit">Send</MudButton>
+        <MudButton Disabled="user == null" StartIcon="@Icons.Rounded.Send" Variant="Variant.Text" Color="Color.Primary" Size="Size.Small" OnClick="Submit">Send</MudButton>
     </DialogActions>
 </MudDialog>

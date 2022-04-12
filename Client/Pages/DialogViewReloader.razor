@@ -1,0 +1,15 @@
+﻿@code {
+    [CascadingParameter] MudDialogInstance _mudDialog { get; set; }
+    
+    void Cancel() => _mudDialog.Cancel();
+}
+
+<MudDialog>
+    <DialogContent>
+        <MudText Typo="Typo.h5" Color="Color.Primary">Micheal Cadeliña</MudText>
+        <MudText Typo="Typo.h6">09606698622</MudText>
+    </DialogContent>
+    <DialogActions>
+        <MudButton StartIcon="@Icons.Rounded.Close" Variant="Variant.Text" Color="Color.Primary" Size="Size.Small" OnClick="Cancel">Dismiss</MudButton>
+    </DialogActions>
+</MudDialog>

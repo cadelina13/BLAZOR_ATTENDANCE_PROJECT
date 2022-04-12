@@ -65,7 +65,7 @@ namespace Client.Data
         Task RemoveSection(string id);
 
         [Post("/GetStudentFilter")]
-        Task<List<Student>> GetStudentFilter(List<string> listid);
+        Task<List<Student>> GetStudentFilter(GetStudentViewModel data);
 
         [Post("/SaveSubjectRecordList")]
         Task<List<SubjectRecord>> SaveSubjectRecordList(List<SubjectRecord> data);
@@ -96,5 +96,11 @@ namespace Client.Data
 
         [Post("/UpdateSubject")]
         Task<Subject> UpdateSubject(Subject data);
+
+        [Get("/GetUser/{number}")]
+        Task<User> GetUser(string number);
+
+        [Post("/UpdateUser")]
+        Task<User> UpdateUser(User data);
     }
 }

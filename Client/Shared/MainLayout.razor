@@ -14,14 +14,7 @@
         <MudDrawerHeader>
             @if (user != null && !string.IsNullOrEmpty(user.Email))
             {
-                if (user.Email.Length > 23)
-                {
-                    <MudText Typo="Typo.body1">@user.Email.Substring(0, 23) ...</MudText>
-                }
-                else
-                {
-                    <MudText Typo="Typo.body1">@user.Email</MudText>
-                }
+                <MudText Typo="Typo.body1">@($"+63{user.Email}")</MudText>
             }
         </MudDrawerHeader>
         <NavMenu />
@@ -66,8 +59,6 @@
 
     async Task SignOut()
     {
-        snackbar.Add("You are not allowed to sign out.");
-        return;
         var d = await dialog.ShowMessageBox("Sign out", "You are about to end your session. Are you sure?", yesText: "Sign out", noText: "Cancel");
         if (d.HasValue && d.Value)
         {

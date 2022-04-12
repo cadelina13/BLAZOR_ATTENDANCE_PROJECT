@@ -23,13 +23,8 @@
 
     private IEnumerable<User> pagedData;
     private MudTable<User> _table;
-
     private int totalItems;
     private string searchString = null;
-
-    /// <summary>
-    /// Here we simulate getting the paged, filtered and ordered data from the server
-    /// </summary>
     private async Task<TableData<User>> ServerReload(TableState state)
     {
         IEnumerable<User> data = await _db.GetListUsers();
@@ -68,6 +63,13 @@
         searchString = text;
         _table.ReloadServerData();
     }
+
+    async Task AddSMSDialog(User _user)
+    {
+        var d = await dialog.Show<DialogAddSMSBalance>("Add SMS", 
+            new DialogParameters() { ["user"] = _user },
+            new DialogOptions(){ MaxWidth = MaxWidth.ExtraSmall }).Result;
+    }
 }
 
 @if (IsAdmin)
@@ -88,21 +90,26 @@
             </MudPaper>
         </div>
         <div class="col-md-9 pb-3">
-            <MudTable Elevation="25" ServerData="@(new Func<TableState, Task<TableData<User>>>(ServerReload))"
+            <MudTable Bordered Elevation="25" ServerData="@(new Func<TableState, Task<TableData<User>>>(ServerReload))"
                       Dense Hover Striped @ref="_table">
                 <ToolBarContent>
-                    <MudText Typo="Typo.h6">List of users</MudText>
+                    <MudText Typo="Typo.h6">Accounts</MudText>
                     <MudSpacer />
                     <MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
                                   AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
                 </ToolBarContent>
                 <HeaderContent>
-                    <MudTh><MudTableSortLabel SortLabel="Emails" T="User">Emails</MudTableSortLabel></MudTh>
+                    <MudTh><MudTableSortLabel SortLabel="PIN" T="User">SMS</MudTableSortLabel></MudTh>
+                    <MudTh><MudTableSortLabel SortLabel="Emails" T="User">Phone</MudTableSortLabel></MudTh>
                     <MudTh Style="width:1%"><MudTableSortLabel SortLabel="PIN" T="User">PIN</MudTableSortLabel></MudTh>
                     <MudTh><MudTableSortLabel SortLabel="Registered" T="User">Registered</MudTableSortLabel></MudTh>
                 </HeaderContent>
                 <RowTemplate>
-                    <MudTd DataLabel="Emails">@context.Email</MudTd>
+                    <MudTd DataLabel="SMS">
+                        <MudIconButton OnClick="@(()=> AddSMSDialog(context))" Icon="@Icons.Rounded.AddComment" Size="Size.Small" Class="p-1 mr-3" Color="Color.Success" />
+                        @string.Format("{0:n0}", context.SMS)
+                    </MudTd>
+                    <MudTd DataLabel="Phone">@context.Email</MudTd>
                     <MudTd DataLabel="PIN">@context.PIN</MudTd>
                     <MudTd DataLabel="Registered">@context.DateRegistered.ToString("MM-dd-yyyy hh:mm tt")</MudTd>
                 </RowTemplate>

@@ -1,0 +1,78 @@
+﻿@page "/manage"
+@code {
+    CustomMessage msg = new();
+    User user;
+    BalanceViewModel smsData = new();
+    bool IsAdmin = false;
+    bool isReloading = false;
+    protected override async Task OnInitializedAsync()
+    {
+        user = await localdb.GetItemAsync<User>(table.table_user);
+        user = await _db.GetUser(user.Email);
+        if (user == null)
+        {
+            nav.NavigateTo($"{nav.BaseUri}");
+            return;
+        }
+        if (!await localdb.ContainKeyAsync("custom_message"))
+            await localdb.SetItemAsync("custom_message", msg);
+
+        msg = await localdb.GetItemAsync<CustomMessage>("custom_message");
+        if (string.IsNullOrEmpty(msg.Message))
+            msg.Message = WebHeader.MESSAGE_PLACEHOLDER;
+
+    }
+    async Task GetBalance()
+    {
+        isReloading = true;
+        await InvokeAsync(StateHasChanged);
+        user = await _db.GetUser(user.Email);
+        await InvokeAsync(StateHasChanged);
+        isReloading = false;
+    }
+    async Task SaveMsg()
+    {
+        await localdb.SetItemAsync("custom_message", msg);
+        msg = await localdb.GetItemAsync<CustomMessage>("custom_message");
+        snackbar.Add("Custom message updated.");
+    }
+
+    async Task dialogReloader()
+    {
+        var d = await dialog.Show<DialogViewReloader>("Reloader", new DialogOptions() { MaxWidth = MaxWidth.ExtraSmall }).Result;
+
+    }
+}
+
+<div class="row">
+    <div class="col-md-6 pb-3">
+        <MudPaper Class="pt-3 pr-3 pl-3" Elevation="25">
+            @if (isReloading || user == null)
+            {
+                <MudProgressLinear Indeterminate Size="Size.Small" Color="Color.Primary" />
+            }
+            @if (user != null)
+            {
+                <MudTextField Disabled="isReloading" Label="Remaining SMS" ReadOnly Text="@string.Format("{0:n0}", user.SMS)" T="string" Variant="Variant.Outlined" />
+            }
+            <MudToolBar Class="p-0 m-0" Dense>
+                <MudButton OnClick="dialogReloader" Size="Size.Small" Color="Color.Primary" StartIcon="@Icons.Rounded.PersonAdd">Contact Reloader</MudButton>
+                <MudSpacer />
+                <MudButton Disabled="isReloading" Color="Color.Success" OnClick="GetBalance" Size="Size.Small" Variant="Variant.Text" StartIcon="@Icons.Rounded.Refresh">Refresh</MudButton>
+            </MudToolBar>
+        </MudPaper>
+    </div>
+    <div class="col-md-6">
+        <MudPaper Class="p-3" Elevation="25">
+            <MudText Typo="Typo.body1" Color="Color.Primary">Custom text message</MudText>
+            <MudTextField Class="mb-3" T="string" @bind-Value="@msg.Message" Immediate Variant="Variant.Outlined" Lines="5" />
+            <MudAlert Severity="Severity.Info">
+                You can customize your message but do not remove the #student# and #subject# as they will be change programmatically.
+            </MudAlert>
+            <MudToolBar Dense Class="p-0 m-0">
+                <MudSpacer />
+                <MudButton Class="mt-3" OnClick="SaveMsg" Disabled="string.IsNullOrEmpty(msg.Message)" Variant="Variant.Filled" Size="Size.Small" Color="Color.Primary" StartIcon="@Icons.Rounded.Save">Save</MudButton>
+            </MudToolBar>
+        </MudPaper>
+    </div>
+</div>

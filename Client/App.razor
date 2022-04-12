@@ -43,15 +43,31 @@
 </Router>
 
 @code {
+    User user = new();
+    protected override async Task OnInitializedAsync()
+    {
+        user = await localdb.GetItemAsync<User>(table.table_user);
+    }
     async Task OnNavigation()
     {
         if (!await localdb.ContainKeyAsync(table.table_user))
         {
-            var d = await dialog.Show<DialogAddEmail>("Registration", new DialogOptions() { MaxWidth = MaxWidth.ExtraSmall, CloseButton = false }).Result;
+            @*var d = await dialog.Show<DialogAddEmail>("Registration", new DialogOptions() { MaxWidth = MaxWidth.ExtraSmall, CloseButton = false }).Result;
             if (!d.Cancelled)
             {
                 var data = (User)d.Data;
                 nav.NavigateTo(nav.BaseUri, true);
+            }*@
+            user = await localdb.GetItemAsync<User>(table.table_user);
+            if (user == null || (user != null && !user.IsVerified))
+            {
+                var d = await dialog.Show<DialogVerificationCode>("Authentication", new DialogOptions() { MaxWidth = MaxWidth.ExtraSmall, CloseButton = false }).Result;
+                if (!d.Cancelled)
+                {
+                    user = await localdb.GetItemAsync<User>(table.table_user);
+                    if (user.IsVerified)
+                        nav.NavigateTo(nav.BaseUri);
+                }
             }
         }
 

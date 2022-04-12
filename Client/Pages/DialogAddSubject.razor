@@ -13,6 +13,11 @@
     bool IsSaving = false;
     async void Submit()
     {
+        if(!_selectedTime.HasValue)
+        {
+            snackbar.Add("Please select a time.");
+            return;
+        }
         IsSaving = true;
         data.UserId = user.Email;
         data.SectionId = sectionId;
@@ -42,6 +47,6 @@
     </DialogContent>
     <DialogActions>
         <MudButton StartIcon="@Icons.Rounded.Close" Variant="Variant.Text" Color="Color.Default" Size="Size.Small" OnClick="Cancel">Cancel</MudButton>
-        <MudButton StartIcon="@Icons.Rounded.Save" Disabled="@(string.IsNullOrEmpty(data.SubjectName) || IsSaving)" Variant="Variant.Text" Color="Color.Primary" Size="Size.Small" OnClick="Submit">Save</MudButton>
+        <MudButton StartIcon="@Icons.Rounded.Save" Disabled="@(string.IsNullOrEmpty(data.SubjectName) || !_selectedTime.HasValue || IsSaving)" Variant="Variant.Text" Color="Color.Primary" Size="Size.Small" OnClick="Submit">Save</MudButton>
     </DialogActions>
 </MudDialog>
