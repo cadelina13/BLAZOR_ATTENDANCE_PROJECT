@@ -102,5 +102,8 @@ namespace Client.Data
 
         [Post("/UpdateUser")]
         Task<User> UpdateUser(User data);
+
+        [Post("/GetPaid/{amount}/{userId}")]
+        Task<PaymentResponseHeaderViewModel> GetPaid(double amount, string userId);
     }
 }

@@ -61,7 +61,7 @@
             user = await localdb.GetItemAsync<User>(table.table_user);
             if (user == null || (user != null && !user.IsVerified))
             {
-                var d = await dialog.Show<DialogVerificationCode>("Authentication", new DialogOptions() { MaxWidth = MaxWidth.ExtraSmall, CloseButton = false }).Result;
+                var d = await dialog.Show<DialogVerificationCode>("Attendance PH", new DialogOptions() { MaxWidth = MaxWidth.ExtraSmall, CloseButton = false }).Result;
                 if (!d.Cancelled)
                 {
                     user = await localdb.GetItemAsync<User>(table.table_user);

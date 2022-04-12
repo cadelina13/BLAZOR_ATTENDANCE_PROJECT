@@ -1,13 +1,32 @@
 ﻿@code {
     [CascadingParameter] MudDialogInstance _mudDialog { get; set; }
-    
+    User user;
+
+    protected override async Task OnInitializedAsync()
+    {
+        user = await localdb.GetItemAsync<User>(table.table_user);
+        user = await _db.GetUser(user.Email);
+
+    }
+
     void Cancel() => _mudDialog.Cancel();
+
+    async Task OnPaymentClick(double Amount)
+    {
+        var post = await _db.GetPaid(Amount, user.Email);
+        snackbar.Add(post.data.checkouturl);
+    }
 }
 
 <MudDialog>
     <DialogContent>
-        <MudText Typo="Typo.h5" Color="Color.Primary">Micheal Cadeliña</MudText>
-        <MudText Typo="Typo.h6">09606698622</MudText>
+        @*<a data-amount="100" data-fee="0" data-expiry="6" data-description="Payment for services rendered" data-href="https://getpaid.gcash.com/paynow" data-public-key="pk_7a2075eefec680c4e4d3f5cdd140638a" onclick="this.href = this.getAttribute('data-href')+'?public_key='+this.getAttribute('data-public-key')+'&amp;amount='+this.getAttribute('data-amount')+'&amp;fee='+this.getAttribute('data-fee')+'&amp;expiry='+this.getAttribute('data-expiry')+'&amp;description='+this.getAttribute('data-description');" href="https://getpaid.gcash.com/paynow?public_key=pk_7a2075eefec680c4e4d3f5cdd140638a&amp;amount=100&amp;fee=0&amp;expiry=6&amp;description=AttendancePH" target="_blank" class="x-getpaid-button"><img src="https://getpaid.gcash.com/assets/img/paynow.png"></a>*@
+        <img class="img-fluid mb-3" src="https://mindanaotimes.com.ph/wp-content/uploads/2021/05/GCash-Logo-Transparent-PNG-1-2048x682.png" />
+        <MudToolBar Dense Class="p-0 m-0">
+            <MudIcon Icon="@Icons.Rounded.Person" Size="Size.Large" Color="Color.Primary" Class="mr-3" />
+            <MudText Class="mt-1" Typo="Typo.h5" Color="Color.Primary">Micheal Cadeliña</MudText>
+        </MudToolBar>
+        <MudTextField Class="mt-4" ReadOnly Label="GCASH Number" Variant="Variant.Outlined" T="string" Text="09606698622" />
     </DialogContent>
     <DialogActions>
         <MudButton StartIcon="@Icons.Rounded.Close" Variant="Variant.Text" Color="Color.Primary" Size="Size.Small" OnClick="Cancel">Dismiss</MudButton>

@@ -13,10 +13,12 @@
     async void Submit()
     {
         IsSaving = true;
-        user.SMS = user.SMS + smsAdd;
+        var addon = smsAdd * 2;
+        user.SMS = user.SMS + addon;
         var std = await _db.UpdateUser(user);
         if (std != null)
         {
+            snackbar.Add("SMS added.");
             _mudDialog.Close(DialogResult.Ok(std));
         }
         IsSaving = false;
@@ -29,7 +31,7 @@
         <MudTextField MaxLength="10" Required InputMode="InputMode.numeric" ReadOnly Adornment="Adornment.Start" AdornmentText="+63" InputType="InputType.Number" Immediate @bind-Value="user.Email" Label="Phone" Variant="Variant.Outlined" Lines="1" Class="mb-3" />
         <MudTextField Immediate @bind-Value="user.SMS" ReadOnly T="int" Label="Remaining SMS" Variant="Variant.Outlined" Lines="1" Class="mb-3" />
         <hr />
-        <MudTextField Immediate @bind-Value="smsAdd" Required T="int" Label="Additional" Variant="Variant.Outlined" Lines="1" Class="mb-3" />
+        <MudTextField AutoFocus Immediate @bind-Value="smsAdd" Required T="int" Adornment="Adornment.Start" AdornmentText="Php" Label="Amount Paid" Variant="Variant.Outlined" Lines="1" Class="mb-3" />
     </DialogContent>
     <DialogActions>
         <MudButton StartIcon="@Icons.Rounded.Close" Variant="Variant.Text" Color="Color.Default" Size="Size.Small" OnClick="Cancel">Cancel</MudButton>

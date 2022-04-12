@@ -40,6 +40,10 @@
 
 <MudDialog>
     <DialogContent>
+        <MudToolBar Dense Class="p-0 mb-4">
+            <MudIcon Color="Color.Primary" Icon="@Icons.Rounded.Lock" Class="mr-3" Size="Size.Medium"/>
+            <MudText Color="Color.Primary" Class="mt-1" Typo="Typo.h5">Authentication</MudText>
+        </MudToolBar>
         <MudTextField Disabled="IsSendingCode" MaxLength="10" Required Counter="10" InputMode="InputMode.numeric" HelperText="ex. 9123456789" Adornment="Adornment.Start" AdornmentText="+63" InputType="InputType.Number" Immediate @bind-Value="user.Email" Label="Mobile Number" Variant="Variant.Outlined" Lines="1" Class="mb-1" />
         <MudToolBar Dense Class="p-0 m-0">
             <MudSpacer />

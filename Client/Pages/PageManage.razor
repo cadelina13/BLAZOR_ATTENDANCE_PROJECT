@@ -46,33 +46,78 @@
 
 <div class="row">
     <div class="col-md-6 pb-3">
-        <MudPaper Class="pt-3 pr-3 pl-3" Elevation="25">
+        <MudPaper Class="pt-3 pr-3 pl-3 pb-3" Elevation="25">
             @if (isReloading || user == null)
             {
                 <MudProgressLinear Indeterminate Size="Size.Small" Color="Color.Primary" />
             }
             @if (user != null)
             {
-                <MudTextField Disabled="isReloading" Label="Remaining SMS" ReadOnly Text="@string.Format("{0:n0}", user.SMS)" T="string" Variant="Variant.Outlined" />
+                <MudTextField Disabled="isReloading" Label="Remaining SMS Balance" ReadOnly Text="@string.Format("{0:n0}", user.SMS)" T="string" Variant="Variant.Outlined" />
             }
+
             <MudToolBar Class="p-0 m-0" Dense>
-                <MudButton OnClick="dialogReloader" Size="Size.Small" Color="Color.Primary" StartIcon="@Icons.Rounded.PersonAdd">Contact Reloader</MudButton>
+                @*<MudButton OnClick="dialogReloader" Size="Size.Small" Color="Color.Primary" StartIcon="@Icons.Rounded.PersonAdd">Contact Reloader</MudButton>*@
                 <MudSpacer />
                 <MudButton Disabled="isReloading" Color="Color.Success" OnClick="GetBalance" Size="Size.Small" Variant="Variant.Text" StartIcon="@Icons.Rounded.Refresh">Refresh</MudButton>
             </MudToolBar>
+            <MudSimpleTable Outlined Bordered Dense Hover Striped Class="mt-3 mb-4">
+                <thead>
+                    <tr>
+                        <th class="text-center">Amount</th>
+                        <th class="text-center">SMS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="text-center">Php 200.00</td>
+                        <td class="text-center">400</td>
+                    </tr>
+                    <tr>
+                        <td class="text-center">Php 500.00</td>
+                        <td class="text-center">1,000</td>
+                    </tr>
+                    <tr>
+                        <td class="text-center">Php 700.00</td>
+                        <td class="text-center">1,400</td>
+                    </tr>
+                    <tr>
+                        <td class="text-center">Php 1,000.00</td>
+                        <td class="text-center">2,000</td>
+                    </tr>
+                </tbody>
+            </MudSimpleTable>
+
+            <MudText Typo="Typo.h6">How to recharge?</MudText>
+            <ol class="m-3">
+                <li>Select an amount from the table above.</li>
+                <li>Pay the amount you have selected thru GCASH and screenshot the receipt.</li>
+                <li>Go to <a class="text-primary" href="https://depedzn.net/link/recharge" target="_blank">https://depedzn.net/link/recharge</a> and fillup the form then upload the receipt.</li>
+            </ol>
+
+            <a @onclick="@(()=> dialogReloader())" style="cursor:pointer"><img src="https://getpaid.gcash.com/assets/img/paynow.png"></a>
+
         </MudPaper>
     </div>
     <div class="col-md-6">
-        <MudPaper Class="p-3" Elevation="25">
-            <MudText Typo="Typo.body1" Color="Color.Primary">Custom text message</MudText>
-            <MudTextField Class="mb-3" T="string" @bind-Value="@msg.Message" Immediate Variant="Variant.Outlined" Lines="5" />
-            <MudAlert Severity="Severity.Info">
-                You can customize your message but do not remove the #student# and #subject# as they will be change programmatically.
-            </MudAlert>
-            <MudToolBar Dense Class="p-0 m-0">
-                <MudSpacer />
-                <MudButton Class="mt-3" OnClick="SaveMsg" Disabled="string.IsNullOrEmpty(msg.Message)" Variant="Variant.Filled" Size="Size.Small" Color="Color.Primary" StartIcon="@Icons.Rounded.Save">Save</MudButton>
-            </MudToolBar>
-        </MudPaper>
+        @if (isReloading || user == null)
+        {
+
+        }
+        else
+        {
+            <MudPaper Class="p-3" Elevation="25">
+                <MudText Typo="Typo.body1" Color="Color.Primary">Custom text message</MudText>
+                <MudTextField Class="mb-3" T="string" @bind-Value="@msg.Message" Immediate Variant="Variant.Outlined" Lines="5" />
+                <MudAlert Severity="Severity.Info">
+                    You can customize your message but do not remove the #student# and #subject# as they will be change programmatically.
+                </MudAlert>
+                <MudToolBar Dense Class="p-0 m-0">
+                    <MudSpacer />
+                    <MudButton Class="mt-3" OnClick="SaveMsg" Disabled="string.IsNullOrEmpty(msg.Message)" Variant="Variant.Filled" Size="Size.Small" Color="Color.Primary" StartIcon="@Icons.Rounded.Save">Save</MudButton>
+                </MudToolBar>
+            </MudPaper>
+        }
+
     </div>
 </div>
