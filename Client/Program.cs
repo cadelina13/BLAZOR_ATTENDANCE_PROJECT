@@ -59,11 +59,11 @@ namespace Client
             builder.Services.AddRefitClient<IDataAccess>().ConfigureHttpClient(c =>
             {
                 c.BaseAddress = new Uri("https://intranet.misamisoriental.gov.ph/efms_api/attendance");
-                c.DefaultRequestHeaders.Add("Access-Control-Allow-Origin", "*");
+                /*c.DefaultRequestHeaders.Add("Access-Control-Allow-Origin", "*");
                 c.DefaultRequestHeaders.Add("Access-Control-Allow-Credentials", "true");
-                c.DefaultRequestHeaders.Add("Access-Control-Allow-Headers", "Access-Control-Allow-Origin,Content-Type");
+                c.DefaultRequestHeaders.Add("Access-Control-Allow-Headers", "Access-Control-Allow-Origin,Content-Type");*/
             });
-            builder.Logging.SetMinimumLevel(LogLevel.None);
+            //builder.Logging.SetMinimumLevel(LogLevel.None);
 #endif
 
             await builder.Build().RunAsync();
