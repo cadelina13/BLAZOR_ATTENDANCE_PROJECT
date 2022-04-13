@@ -58,7 +58,7 @@
                 var data = (User)d.Data;
                 nav.NavigateTo(nav.BaseUri, true);
             }*@
-            user = await localdb.GetItemAsync<User>(table.table_user);
+            @*user = await localdb.GetItemAsync<User>(table.table_user);
             if (user == null || (user != null && !user.IsVerified))
             {
                 var d = await dialog.Show<DialogVerificationCode>("Attendance PH", new DialogOptions() { MaxWidth = MaxWidth.ExtraSmall, CloseButton = false }).Result;
@@ -68,7 +68,7 @@
                     if (user.IsVerified)
                         nav.NavigateTo(nav.BaseUri);
                 }
-            }
+            }*@
         }
 
         if (nav.Uri == $"{nav.BaseUri}")

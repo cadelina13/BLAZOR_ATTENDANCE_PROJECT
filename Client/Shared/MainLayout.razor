@@ -1,29 +1,46 @@
 ﻿@inherits LayoutComponentBase
 <MudLayout>
-    <MudAppBar Dense Elevation="25">
-        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
-        <MudText Class="ml-3">@WebHeader.TITLE.ToUpper()</MudText>
-        <MudSpacer />
-        <MudTooltip Placement="Placement.Start" Text="Sign out">
-            <MudIconButton OnClick="SignOut" Class="mr-3" Icon="@Icons.Rounded.Logout" Color="Color.Inherit" />
-        </MudTooltip>
-        @*<LoginDisplay />*@
+    @if (user == null || (user != null && !user.IsVerified))
+    {
+        <MudAppBar Dense Elevation="25" Class="pl-0 ml-0">
+            <img style="width:80px;margin-top:50px;margin-left:0;" src="/icon-512.png" />
+            <MudSpacer />
 
-    </MudAppBar>
-    <MudDrawer @bind-Open="_drawerOpen" Elevation="25" Fixed>
-        <MudDrawerHeader>
-            @if (user != null && !string.IsNullOrEmpty(user.Email))
-            {
-                <MudText Typo="Typo.body1">@($"+63{user.Email}")</MudText>
-            }
-        </MudDrawerHeader>
-        <NavMenu />
-    </MudDrawer>
-    <MudMainContent>
-        <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
-            @Body
-        </MudContainer>
-    </MudMainContent>
+        </MudAppBar>
+        <MudMainContent>
+            <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
+                <Client.Pages.PageLoginRegister />
+            </MudContainer>
+        </MudMainContent>
+    }
+    else
+    {
+        <MudAppBar Dense Elevation="25">
+            <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+            <MudText Class="ml-3">@WebHeader.TITLE.ToUpper()</MudText>
+            <MudSpacer />
+            <MudTooltip Placement="Placement.Start" Text="Sign out">
+                <MudIconButton OnClick="SignOut" Class="mr-3" Icon="@Icons.Rounded.Logout" Color="Color.Inherit" />
+            </MudTooltip>
+            @*<LoginDisplay />*@
+
+        </MudAppBar>
+        <MudDrawer @bind-Open="_drawerOpen" Elevation="25" Fixed>
+            <MudDrawerHeader>
+                @if (user != null && !string.IsNullOrEmpty(user.Email))
+                {
+                    <MudText Typo="Typo.body1">@($"+63{user.Email}")</MudText>
+                }
+            </MudDrawerHeader>
+            <NavMenu />
+        </MudDrawer>
+        <MudMainContent>
+            <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
+                @Body
+            </MudContainer>
+        </MudMainContent>
+    }
+
 </MudLayout>
 @code {
     bool _drawerOpen = true;
@@ -38,15 +55,15 @@
         if (firstRender)
         {
             user = await localdb.GetItemAsync<User>(table.table_user);
-            if (!user.IsVerified)
+            if (user == null || (user != null && !user.IsVerified))
             {
-                var d = await dialog.Show<DialogVerificationCode>("Authentication", new DialogOptions() { MaxWidth = MaxWidth.ExtraSmall, CloseButton = false }).Result;
-                if (!d.Cancelled)
-                {
-                    user = await localdb.GetItemAsync<User>(table.table_user);
-                    if (user.IsVerified)
-                        nav.NavigateTo(nav.BaseUri);
-                }
+                @*var d = await dialog.Show<DialogVerificationCode>("Authentication", new DialogOptions() { MaxWidth = MaxWidth.ExtraSmall, CloseButton = false }).Result;
+                    if (!d.Cancelled)
+                    {
+                        user = await localdb.GetItemAsync<User>(table.table_user);
+                        if (user.IsVerified)
+                            nav.NavigateTo(nav.BaseUri);
+                    }*@
             }
         }
     }

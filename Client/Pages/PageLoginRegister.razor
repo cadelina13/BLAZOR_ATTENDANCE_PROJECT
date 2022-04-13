@@ -1,4 +1,73 @@
 ﻿@page "/auth"
 @code {
+    User user = new();
+    public string txtPIN { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        user.Id = "";
+    }
+    bool IsSendingCode = false;
+    async Task btnSendCode()
+    {
+        if (user.Email.Length != 10)
+        {
+            snackbar.Add("Invalid phone number.");
+            return;
+        }
+        IsSendingCode = true;
+        await InvokeAsync(StateHasChanged);
+        user = await _db.RegisterEmail(user.Email);
+        snackbar.Add("An sms has been sent to your mobile number.");
+        IsSendingCode = false;
+        await InvokeAsync(StateHasChanged);
+    }
 
+    string invalidString = "";
+    bool IsValidating = false;
+    async Task Submit()
+    {
+        IsValidating = true;
+        await InvokeAsync(StateHasChanged);
+        invalidString = "";
+        if (user.PIN.Equals(txtPIN, StringComparison.Ordinal))
+        {
+            user.IsVerified = true;
+            await localdb.SetItemAsync(table.table_user, user);
+            nav.NavigateTo(nav.BaseUri, true);
+            return;
+        }
+        invalidString = "Invalid code.";
+        IsValidating = false;
+        await InvokeAsync(StateHasChanged);
+    }
 }
+
+<div class="row mt-5">
+    <div class="col-md-12 text-center mx-auto pt-3">
+        <MudText Typo="Typo.h4" Color="Color.Primary" Class="font-weight-bolder">Attendance PH</MudText>
+    </div>
+    <div class="col-md-4 mx-auto">
+        <MudPaper Elevation="25" Class="p-3 mt-5">
+            <MudToolBar Dense Class="p-0 mb-3 mt-3">
+                <MudIcon Size="Size.Medium" Icon="@Icons.Rounded.Lock" />
+                <MudText Class="ml-3" Typo="Typo.body1">Authentication</MudText>
+                <MudSpacer />
+            </MudToolBar>
+            <MudTextField Disabled="IsSendingCode" MaxLength="10" Required Counter="10" InputMode="InputMode.numeric" HelperText="ex. 9123456789" Adornment="Adornment.Start" AdornmentText="+63" InputType="InputType.Number" Immediate @bind-Value="user.Email" Label="Mobile Number" Variant="Variant.Outlined" Lines="1" Class="mb-1" />
+            <MudToolBar Dense Class="p-0 m-0">
+                <MudSpacer />
+                <MudButton Disabled="IsSendingCode || string.IsNullOrEmpty(user.Email)" OnClick="btnSendCode" Size="Size.Small" Color="Color.Primary" Variant="Variant.Text">Send Code</MudButton>
+            </MudToolBar>
+            @if (!string.IsNullOrEmpty(user.Id) && user.Id != null)
+            {
+                <MudTextField Class="mt-3" InputType="InputType.Password" InputMode="InputMode.numeric" Immediate @bind-Value="txtPIN" Label="Code" Variant="Variant.Outlined" Lines="1" />
+                <MudText Typo="Typo.caption" Color="Color.Secondary">@invalidString</MudText>
+                <MudToolBar Class="m-0 p-0" Dense>
+                    <MudSpacer />
+                    <MudButton StartIcon="@Icons.Rounded.Login" Disabled="@(string.IsNullOrEmpty(user.Id)|| string.IsNullOrEmpty(user.Email) || IsValidating)" Variant="Variant.Text" Color="Color.Primary" Size="Size.Small" OnClick="Submit">Validate</MudButton>
+                </MudToolBar>
+            }
+
+        </MudPaper>
+    </div>
+</div>
