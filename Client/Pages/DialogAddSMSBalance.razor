@@ -13,8 +13,8 @@
     async void Submit()
     {
         IsSaving = true;
-        var addon = smsAdd * 2;
-        user.SMS = user.SMS + addon;
+        var addon = smsAdd * 2.7;
+        user.SMS = (int)(user.SMS + addon);
         var std = await _db.UpdateUser(user);
         if (std != null)
         {
