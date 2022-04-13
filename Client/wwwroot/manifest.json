@@ -1,7 +1,8 @@
 {
   "name": "Attendance PH",
   "short_name": "AttendancePH",
-  "start_url": "",
+  "start_url": "/",
+  "scope": ".",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#03173d",
