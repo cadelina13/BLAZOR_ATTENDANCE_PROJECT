@@ -1,3 +1,5 @@
 # BLAZOR_ATTENDANCE_PROJECT
 
-Project Temporary URL: https://brave-stone-0ba9a8f00.1.azurestaticapps.net
+Project URLs: https://happy-wave-070586300.1.azurestaticapps.net <br/>
+https://attendanceph.com
+
