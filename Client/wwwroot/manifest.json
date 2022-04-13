@@ -1,7 +1,7 @@
 {
-  "name": "Attendance System",
-  "short_name": "AS",
-  "start_url": "./",
+  "name": "Attendance PH",
+  "short_name": "AttendancePH",
+  "start_url": "./sections",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#03173d",
