@@ -84,4 +84,10 @@
             nav.NavigateTo(nav.BaseUri, true);
         }
     }
+
+    [JSInvokable("MyBlazorInstallMethod")]
+    public async void MyBlazorInstallMethod()
+    {
+        snackbar.Add("Insall?");
+    }
 }

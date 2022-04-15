@@ -63,7 +63,7 @@ namespace Client
                 c.DefaultRequestHeaders.Add("Access-Control-Allow-Credentials", "true");
                 c.DefaultRequestHeaders.Add("Access-Control-Allow-Headers", "Access-Control-Allow-Origin,Content-Type");*/
             });
-            //builder.Logging.SetMinimumLevel(LogLevel.None);
+            builder.Logging.SetMinimumLevel(LogLevel.None);
 #endif
 
             await builder.Build().RunAsync();

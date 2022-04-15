@@ -27,12 +27,26 @@
     <script src="_content/Microsoft.AspNetCore.Components.WebAssembly.Authentication/AuthenticationService.js"></script>
     <script src="_framework/blazor.webassembly.js"></script>
     <script>
+
         navigator.serviceWorker.register('./service-worker.js', { scope: '/' })
             .then(function (registration) {
                 console.log('Service worker registered successfully ' + new Date());
             }).catch(function (e) {
                 console.error('Error during service worker registration:', e);
             });
+
+        window.addEventListener('beforeinstallprompt', function (e) {
+            e.preventDefault();
+            // Stash the event so it can be triggered later.
+            // where you store it is up to you
+            window.PWADeferredPrompt = e;
+            // Notify C# Code that it can show an alert
+            // MyBlazorInstallMethod must be [JSInvokable]
+            setTimeout(function(){
+            }, 1000);
+        });
+        DotNet.invokeMethod("MyBlazorInstallMethod");
+
     </script>
     <script src="_content/MudBlazor/MudBlazor.min.js"></script>
 </body>
