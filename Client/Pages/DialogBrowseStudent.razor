@@ -42,7 +42,7 @@
         {
             selectedstudents.Add(data);
         }
-        studentlist = (await _db.GetStudentList(user.Email)).Where(x => !current_studentlist.Select(x => x.Id).Contains(x.Id)).OrderBy(x=>x.FistName).ToList(); ;
+        studentlist = (await _db.GetStudentList(user.Email)).Where(x => !current_studentlist.Select(x => x.Id).Contains(x.Id)).OrderBy(x => x.FistName).ToList(); ;
     }
 
 
@@ -57,6 +57,14 @@
                 SubjectId = subjectId
             });
         }
+        if (data.Count == 1)
+        {
+            snackbar.Add($"{data.Count} student added.");
+        }
+        else
+        {
+            snackbar.Add($"{data.Count} students added.");
+        }
         await _db.SaveSubjectRecordList(data);
         _mudDialog.Close(DialogResult.Ok(true));
     }
@@ -65,10 +73,10 @@
 
 <MudDialog>
     <DialogContent>
-        <MudTextField Label="Search" AdornmentIcon="@Icons.Rounded.Search" Adornment="Adornment.Start" Immediate TextChanged="LoadData" @bind-Value="txtSearch" T="string" Variant="Variant.Outlined" Class="mb-3"/>
+        <MudTextField Label="Search" AdornmentIcon="@Icons.Rounded.Search" Adornment="Adornment.Start" Immediate TextChanged="LoadData" @bind-Value="txtSearch" T="string" Variant="Variant.Outlined" Class="mb-3" />
         @if (studentlist != null)
         {
-            if(studentlist.Count == 0)
+            if (studentlist.Count == 0)
             {
                 <MudText Align="Align.Center" Typo="Typo.caption" Class="text-center">No result.</MudText>
             }
@@ -81,8 +89,8 @@
                             <MudText Color="@(isSelected ? Color.Primary : Color.Default)">@i.FistName @i.LastName</MudText>
                             @if (isSelected)
                             {
-                                <MudSpacer/>
-                                <MudIcon Icon="@Icons.Rounded.Check" Color="Color.Primary" Size="Size.Small"/>
+                                <MudSpacer />
+                                <MudIcon Icon="@Icons.Rounded.Check" Color="Color.Primary" Size="Size.Small" />
                             }
                         </MudToolBar>
                     </MudListItem>
@@ -91,7 +99,7 @@
         }
         else
         {
-            <MudProgressLinear Size="Size.Small" Color="Color.Primary" Indeterminate/>
+            <MudProgressLinear Size="Size.Small" Color="Color.Primary" Indeterminate />
         }
     </DialogContent>
     <DialogActions>

@@ -19,6 +19,12 @@
             <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
             <MudText Class="ml-3">@WebHeader.TITLE.ToUpper()</MudText>
             <MudSpacer />
+            @if (isReadyInstall)
+            {
+                <MudTooltip Placement="Placement.Start" Text="Install">
+                    <MudIconButton OnClick="InstallWebApp" Class="mr-3" Icon="@Icons.Rounded.InstallMobile" Color="Color.Inherit" />
+                </MudTooltip>
+            }
             <MudTooltip Placement="Placement.Start" Text="Sign out">
                 <MudIconButton OnClick="SignOut" Class="mr-3" Icon="@Icons.Rounded.Logout" Color="Color.Inherit" />
             </MudTooltip>
@@ -26,18 +32,29 @@
 
         </MudAppBar>
         <MudDrawer @bind-Open="_drawerOpen" Elevation="25" Fixed>
-            <MudDrawerHeader>
-                @if (user != null && !string.IsNullOrEmpty(user.Email))
-                {
-                    <MudText Typo="Typo.body1">@($"+63{user.Email}")</MudText>
-                }
+            <MudDrawerHeader LinkToIndex Dense>
+                <MudToolBar Class="p-0 m-0">
+                    <img style="width:50px;" class="img-fluid" src="/icon-512.png" />
+                    @if (user != null && !string.IsNullOrEmpty(user.Email))
+                    {
+                        <div>
+                            <MudText Class="ml-2 font-weight-bold" Typo="Typo.caption">Attendance PH</MudText>
+                            <MudText Class="ml-2" Typo="Typo.caption">@($"+63{user.Email}")</MudText>
+                        </div>
+                    }
+                </MudToolBar>
+
             </MudDrawerHeader>
             <NavMenu />
         </MudDrawer>
         <MudMainContent>
             <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
                 @Body
+                <MudScrollToTop>
+                    <MudFab Size="Size.Small" Color="Color.Primary" Icon="@Icons.Filled.ArrowUpward" />
+                </MudScrollToTop>
             </MudContainer>
+            <MudDivider Class="mt-5" />
         </MudMainContent>
     }
 
@@ -47,6 +64,9 @@
     User user = new();
     protected override async Task OnInitializedAsync()
     {
+        var lDotNetReference = DotNetObjectReference.Create(this);
+        await jsRuntime.InvokeVoidAsync("GLOBAL.SetDotnetReference", lDotNetReference);
+
         user = await localdb.GetItemAsync<User>(table.table_user);
 
     }
@@ -85,9 +105,15 @@
         }
     }
 
+    bool isReadyInstall = false;
     [JSInvokable("MyBlazorInstallMethod")]
-    public async void MyBlazorInstallMethod()
+    public async void MyBlazorInstallMethod(string str)
     {
-        snackbar.Add("Insall?");
+        isReadyInstall = true;
+        await InvokeAsync(StateHasChanged);
+    }
+    async Task InstallWebApp()
+    {
+        var rs = await jsRuntime.InvokeAsync<bool>("BlazorPWA.installPWA");
     }
 }

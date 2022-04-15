@@ -16,8 +16,8 @@
 @using Models
 @using Data
 @using Pages
-@using SharedClass 
-@using ViewModels 
+@using SharedClass
+@using ViewModels
 
 @inject IDataAccess _db
 @inject ILocalStorageService localdb
@@ -26,3 +26,4 @@
 @inject NavigationManager nav
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject TableHelper table
+@inject IJSRuntime jsRuntime

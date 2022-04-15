@@ -1,9 +1,13 @@
 ﻿@page "/sections"
+
 @code {
     User user;
     List<Section> sectionlist;
+    public string strSearch { get; set; } = "";
+
     protected override async Task OnInitializedAsync()
     {
+
         WebHeader.TITLE = "Sections";
         user = await localdb.GetItemAsync<User>(table.table_user);
         await LoadData();
@@ -22,44 +26,81 @@
         {
             var data = (Section)d.Data;
             await LoadData();
-            snackbar.Add($"{data.Name} successfully added to the list.");
+            snackbar.Add($"{data.Name} added.");
         }
     }
-
+    void TextChanged(string txt)
+    {
+        strSearch = txt;
+        StateHasChanged();
+    }
+    
 }
 
 <div class="row">
     <div class="col-md-12">
-        <MudToolBar Dense Class="mb-3 p-0">
-            <MudSpacer />
-            <MudTooltip Placement="Placement.Start" Text="Add section">
-                <MudButton OnClick="OnAddClick" StartIcon="@Icons.Rounded.Edit" Size="Size.Small" Color="Color.Primary" Variant="Variant.Filled">Add Section</MudButton>
-            </MudTooltip>
-        </MudToolBar>
-        <MudPaper Elevation="25" Class="p-3 mb-3">
 
-            @if (sectionlist == null)
-            {
-                <MudProgressLinear Color="Color.Primary" Size="Size.Small" Indeterminate Class="mt-3" />
-            }
-            else
-            {
-                <MudList Style="height:65vh;overflow:scroll" Dense Clickable>
+        @if (sectionlist == null)
+        {
+            <MudProgressLinear Color="Color.Primary" Size="Size.Small" Indeterminate Class="mt-3" />
+        }
+        else
+        {
+            <MudSimpleTable Elevation="25" Hover FixedHeader Style="height:87vh;overflow:scroll" Bordered="false">
+                <thead>
+                    <tr>
+                        <th>
+                            <MudToolBar Dense Class="p-0">
+                                <MudSpacer />
+                                <MudTooltip Placement="Placement.Start" Text="Add section">
+                                    <MudButton OnClick="OnAddClick" StartIcon="@Icons.Rounded.Edit" Size="Size.Small" Color="Color.Primary" Variant="Variant.Filled">Add Section</MudButton>
+                                </MudTooltip>
+                            </MudToolBar>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th>
+                            <MudToolBar Dense Class="p-0">
+                                <MudTextField Adornment="Adornment.Start" AdornmentIcon="@Icons.Rounded.Search" Immediate TextChanged="TextChanged" T="string" Variant="Variant.Outlined" Placeholder="Search here..." />
+                                <MudSpacer />
+                            </MudToolBar>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
                     @if (sectionlist.Count == 0)
                     {
-                        <p class="p-5 text-center">
-                            <i>No section added yet.</i>
-                        </p>
+                        <tr>
+                            <td>
+                                <p class="p-5 text-center">
+                                    <i>No section added yet.</i>
+                                </p>
+                            </td>
+                        </tr>
                     }
-                    @foreach (var sec in sectionlist)
+                    @if (sectionlist.Where(x => x.Name.Contains(strSearch, StringComparison.OrdinalIgnoreCase)).Count() == 0)
                     {
-                        <MudListItem Avatar="@Icons.Rounded.AccountBalance" OnClick="@(()=> nav.NavigateTo($"/sections/{sec.Id}"))" Dense>
-                            <MudText Typo="Typo.h6">@sec.Name</MudText>
-                        </MudListItem>
+                        <tr>
+                            <td>
+                                <p class="p-5 text-center">
+                                    <i>No result found.</i>
+                                </p>
+                            </td>
+                        </tr>
                     }
-                </MudList>
-            }
-        </MudPaper>
+                    @foreach (var sec in sectionlist.Where(x => x.Name.Contains(strSearch, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        <tr style="cursor:pointer" @onclick="@(()=> nav.NavigateTo($"/sections/{sec.Id}"))">
+                            <td>
+                                <MudAvatar Color="Color.Primary">@sec.Name.FirstOrDefault().ToString()</MudAvatar>
+                                <MudText Class="ml-3" Inline Typo="Typo.h6">@sec.Name</MudText>
+                            </td>
+                        </tr>
 
+                    }
+                </tbody>
+            </MudSimpleTable>
+
+        }
     </div>
 </div>

@@ -7,6 +7,8 @@
     bool isReloading = false;
     protected override async Task OnInitializedAsync()
     {
+        WebHeader.TITLE = "Manage";
+
         user = await localdb.GetItemAsync<User>(table.table_user);
         user = await _db.GetUser(user.Email);
         if (user == null)

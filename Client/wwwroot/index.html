@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>AttendancePH</title>
+    <title>Attendance PH</title>
     <base href="/" />
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet" />
@@ -27,25 +27,48 @@
     <script src="_content/Microsoft.AspNetCore.Components.WebAssembly.Authentication/AuthenticationService.js"></script>
     <script src="_framework/blazor.webassembly.js"></script>
     <script>
+        var GLOBAL = {};
+        GLOBAL.DotNetReference = null;
+        GLOBAL.SetDotnetReference = function (pDotNetReference) {
+            GLOBAL.DotNetReference = pDotNetReference;
+        };
+        (function () {
+            navigator.serviceWorker.register('./service-worker.js', { scope: './' })
+                .then(function (registration) {
+                    console.log('Service worker registered successfully ' + new Date());
+                }).catch(function (e) {
+                    console.error('Error during service worker registration:', e);
+                });
 
-        navigator.serviceWorker.register('./service-worker.js', { scope: '/' })
-            .then(function (registration) {
-                console.log('Service worker registered successfully ' + new Date());
-            }).catch(function (e) {
-                console.error('Error during service worker registration:', e);
+            window.addEventListener('beforeinstallprompt', function (e) {
+                e.preventDefault();
+                // Stash the event so it can be triggered later.
+                // where you store it is up to you
+                window.PWADeferredPrompt = e;
+                // Notify C# Code that it can show an alert
+                // MyBlazorInstallMethod must be [JSInvokable]
+                setTimeout(function () {
+                    GLOBAL.DotNetReference.invokeMethodAsync("MyBlazorInstallMethod", "1");
+                }, 1000);
             });
-
-        window.addEventListener('beforeinstallprompt', function (e) {
-            e.preventDefault();
-            // Stash the event so it can be triggered later.
-            // where you store it is up to you
-            window.PWADeferredPrompt = e;
-            // Notify C# Code that it can show an alert
-            // MyBlazorInstallMethod must be [JSInvokable]
-            setTimeout(function(){
-            }, 1000);
-        });
-        DotNet.invokeMethod("MyBlazorInstallMethod");
+            window.BlazorPWA = {
+                installPWA: function () {
+                    var rs = false;
+                    if (window.PWADeferredPrompt) {
+                        // Use the stashed event to continue the install process
+                        window.PWADeferredPrompt.prompt();
+                        window.PWADeferredPrompt.userChoice
+                            .then(function (choiceResult) {
+                                window.PWADeferredPrompt = null;
+                                rs = true;
+                            });
+                    }
+                    return rs;
+                },
+            };
+        })();
+        
+       
 
     </script>
     <script src="_content/MudBlazor/MudBlazor.min.js"></script>

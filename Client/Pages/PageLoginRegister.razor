@@ -9,11 +9,12 @@
     bool IsSendingCode = false;
     async Task btnSendCode()
     {
-        if (user.Email.Length != 10)
+        if (user.Email.Length != 10 || !user.Email.StartsWith("9"))
         {
             snackbar.Add("Invalid phone number.");
             return;
         }
+        
         IsSendingCode = true;
         await InvokeAsync(StateHasChanged);
         user = await _db.RegisterEmail(user.Email);
@@ -48,6 +49,7 @@
     </div>
     <div class="col-md-4 mx-auto">
         <MudPaper Elevation="25" Class="p-3 mt-5">
+           
             <MudToolBar Dense Class="p-0 mb-3 mt-3">
                 <MudIcon Size="Size.Medium" Icon="@Icons.Rounded.Lock" />
                 <MudText Class="ml-3" Typo="Typo.body1">Authentication</MudText>
@@ -56,7 +58,11 @@
             <MudTextField Disabled="IsSendingCode" MaxLength="10" Required Counter="10" InputMode="InputMode.numeric" HelperText="ex. 9123456789" Adornment="Adornment.Start" AdornmentText="+63" InputType="InputType.Number" Immediate @bind-Value="user.Email" Label="Mobile Number" Variant="Variant.Outlined" Lines="1" Class="mb-1" />
             <MudToolBar Dense Class="p-0 m-0">
                 <MudSpacer />
-                <MudButton Disabled="IsSendingCode || string.IsNullOrEmpty(user.Email)" OnClick="btnSendCode" Size="Size.Small" Color="Color.Primary" Variant="Variant.Text">Send Code</MudButton>
+                @if (IsSendingCode)
+                {
+                    <MudProgressCircular Indeterminate Size="Size.Small" Color="Color.Primary" Class="mr-3" />
+                }
+                <MudButton Disabled="IsSendingCode || string.IsNullOrEmpty(user.Email) || (!string.IsNullOrEmpty(user.Email) && user.Email.Length != 10)" OnClick="btnSendCode" Size="Size.Small" Color="Color.Primary" Variant="Variant.Text">Send Code</MudButton>
             </MudToolBar>
             @if (!string.IsNullOrEmpty(user.Id) && user.Id != null)
             {
@@ -64,6 +70,10 @@
                 <MudText Typo="Typo.caption" Color="Color.Secondary">@invalidString</MudText>
                 <MudToolBar Class="m-0 p-0" Dense>
                     <MudSpacer />
+                    @if (IsValidating)
+                    {
+                        <MudProgressCircular Indeterminate Size="Size.Small" Color="Color.Primary" Class="mr-3" />
+                    }
                     <MudButton StartIcon="@Icons.Rounded.Login" Disabled="@(string.IsNullOrEmpty(user.Id)|| string.IsNullOrEmpty(user.Email) || IsValidating)" Variant="Variant.Text" Color="Color.Primary" Size="Size.Small" OnClick="Submit">Validate</MudButton>
                 </MudToolBar>
             }
