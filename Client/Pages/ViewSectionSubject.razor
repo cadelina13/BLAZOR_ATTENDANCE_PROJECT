@@ -52,6 +52,7 @@
         {
             await _db.RemoveStudentFromSubect(selectedId, subjectId);
             await LoadData();
+            snackbar.Add("Student has been removed.");
         }
 
     }
@@ -99,6 +100,13 @@
             snackbar.Add("Subject updated.");
         }
     }
+
+    public string strSearch { get; set; } = "";
+    void TextChanged(string txt)
+    {
+        strSearch = txt;
+        StateHasChanged();
+    }
 }
 
 
@@ -130,7 +138,11 @@
                     <MudText Typo="Typo.subtitle1">@sub.SubjectName</MudText>
                 </MudToolBar>
             }
-            <MudTable Outlined Items="studentlist" T="Student" SortLabel="Sort by" Hover Dense>
+            <MudToolBar Dense Class="mb-3 p-0 mt-3">
+                <MudTextField Adornment="Adornment.Start" AdornmentIcon="@Icons.Rounded.Search" Immediate TextChanged="TextChanged" T="string" Variant="Variant.Outlined" Placeholder="Search here..." />
+                <MudSpacer />
+            </MudToolBar>
+            <MudTable Outlined Items="studentlist.Where(x=>x.FistName.Contains(strSearch, StringComparison.OrdinalIgnoreCase) || x.LastName.Contains(strSearch, StringComparison.OrdinalIgnoreCase) || x.ParentsPhoneNumber.Contains(strSearch, StringComparison.OrdinalIgnoreCase))" T="Student" SortLabel="Sort by" Hover Dense>
                 <HeaderContent>
                     <MudTh><MudTableSortLabel SortBy="new Func<Student, object>(x=>x.FistName)">First Name</MudTableSortLabel></MudTh>
                     <MudTh><MudTableSortLabel SortBy="new Func<Student, object>(x=>x.LastName)">Last Name</MudTableSortLabel></MudTh>

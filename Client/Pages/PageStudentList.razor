@@ -7,7 +7,18 @@
     {
         WebHeader.TITLE = "Students";
         user = await localdb.GetItemAsync<User>(table.table_user);
-        await LoadData();
+        var t = new System.Timers.Timer(1000);
+        t.Enabled = true;
+        t.Elapsed += (s, e) =>
+        {
+            if (table1 != null)
+                table1.ReloadServerData();
+            InvokeAsync(StateHasChanged);
+            t.Stop();
+            t.Dispose();
+        };
+        t.Start();
+        //await LoadData();
     }
 
     async Task LoadData()
@@ -39,40 +50,97 @@
             await LoadData();
         }
     }
+
+
+
+    private IEnumerable<Student> pagedData;
+    private MudTable<Student> table1;
+
+    private int totalItems;
+    private string searchString = null;
+
+    /// <summary>
+    /// Here we simulate getting the paged, filtered and ordered data from the server
+    /// </summary>
+    private async Task<TableData<Student>> ServerReload(TableState state)
+    {
+        IEnumerable<Student> data = await _db.GetStudentList(user.Email);
+        data = data.Where(Student =>
+        {
+            if (string.IsNullOrWhiteSpace(searchString))
+                return true;
+            if (Student.FistName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                return true;
+            if (Student.LastName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                return true;
+            if ($"{Student.GradeLevel} {Student.ParentsPhoneNumber}".Contains(searchString))
+                return true;
+            return false;
+        }).ToArray();
+        totalItems = data.Count();
+        switch (state.SortLabel)
+        {
+            case "FistName":
+                data = data.OrderByDirection(state.SortDirection, o => o.FistName);
+                break;
+            case "LastName":
+                data = data.OrderByDirection(state.SortDirection, o => o.LastName);
+                break;
+            case "ParentsPhoneNumber":
+                data = data.OrderByDirection(state.SortDirection, o => o.ParentsPhoneNumber);
+                break;
+            case "GradeLevel":
+                data = data.OrderByDirection(state.SortDirection, o => o.GradeLevel);
+                break;
+        }
+
+        pagedData = data.Skip(state.Page * state.PageSize).Take(state.PageSize).ToArray();
+        return new TableData<Student>() { TotalItems = totalItems, Items = pagedData };
+    }
+
+    private void OnSearch(string text)
+    {
+        searchString = text;
+        table1.ReloadServerData();
+    }
 }
 
 
 <div class="row">
     <div class="col-md-12">
-        <MudPaper Class="p-3 mb-3" Elevation="25">
-            <MudToolBar Dense Class="mb-3 p-0">
+        <MudToolBar Dense Class="mb-3 p-0">
+            <MudSpacer />
+            <MudButton OnClick="OnAddClick" Variant="Variant.Filled" StartIcon="@Icons.Rounded.PersonAdd" Color="Color.Primary" Size="Size.Small">New Student</MudButton>
+        </MudToolBar>
+        <MudTable ServerData="@(new Func<TableState, Task<TableData<Student>>>(ServerReload))"
+                  Dense Hover Outlined @ref="table1">
+            <ToolBarContent>
+                <MudText Typo="Typo.h6">Students</MudText>
                 <MudSpacer />
-                <MudButton OnClick="OnAddClick" Variant="Variant.Filled" StartIcon="@Icons.Rounded.PersonAdd" Color="Color.Primary" Size="Size.Small">New Student</MudButton>
-            </MudToolBar>
-            <MudTable Outlined Items="studentlist" T="Student" SortLabel="Sort by" Hover Dense>
-                <HeaderContent>
-                    <MudTh><MudTableSortLabel SortBy="new Func<Student, object>(x=>x.FistName)">First Name</MudTableSortLabel></MudTh>
-                    <MudTh><MudTableSortLabel SortBy="new Func<Student, object>(x=>x.LastName)">Last Name</MudTableSortLabel></MudTh>
-                    <MudTh><MudTableSortLabel SortBy="new Func<Student, object>(x=>x.ParentsPhoneNumber)">Parent's Contact</MudTableSortLabel></MudTh>
-                    <MudTh><MudTableSortLabel SortBy="new Func<Student, object>(x=>x.ParentsPhoneNumber)">Grade Level</MudTableSortLabel></MudTh>
-                    <MudTh Style="width:1%">*</MudTh>
-                </HeaderContent>
-                <RowTemplate>
-                    <MudTd DataLabel="Fist Name">@context.FistName</MudTd>
-                    <MudTd DataLabel="Last Name">@context.LastName</MudTd>
-                    <MudTd DataLabel="Parent's Contact">@context.ParentsPhoneNumber</MudTd>
-                    <MudTd DataLabel="Grade Level">@context.GradeLevel</MudTd>
-                    <MudTd>
-                        <MudTooltip Placement="Placement.Start" Text="Edit">
-                            <MudIconButton Color="Color.Primary" Size="Size.Small" Icon="@Icons.Rounded.Edit" Class="p-0" OnClick="@(()=> EditStudentClick(context))" />
-                        </MudTooltip>
-                    </MudTd>
-                </RowTemplate>
-                <PagerContent>
-                    <MudTablePager PageSizeOptions="new int[]{50, 100}" />
-                </PagerContent>
-            </MudTable>
-           
-        </MudPaper>
+                <MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+            </ToolBarContent>
+            <HeaderContent>
+                <MudTh><MudTableSortLabel SortLabel="FirstName" T="Student">FirstName</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortLabel="LastName" T="Student">LastName</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortLabel="Parent's Contact" T="Student">Parent's Contact</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortLabel="Grade Level" T="Student">Grade Level</MudTableSortLabel></MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="FistName">@context.FistName</MudTd>
+                <MudTd DataLabel="LastName">@context.LastName</MudTd>
+                <MudTd DataLabel="Parent's Contact">+63 @context.ParentsPhoneNumber</MudTd>
+                <MudTd DataLabel="GradeLevel">@context.GradeLevel</MudTd>
+            </RowTemplate>
+            <NoRecordsContent>
+                <MudText>No matching records found</MudText>
+            </NoRecordsContent>
+            <LoadingContent>
+                <MudText>Loading...</MudText>
+            </LoadingContent>
+            <PagerContent>
+                <MudTablePager />
+            </PagerContent>
+        </MudTable>
     </div>
 </div>
