@@ -16,6 +16,10 @@
     async Task GetBalance()
     {
         isReloading = true;
+        if(_table != null)
+        {
+            await _table.ReloadServerData();
+        }
         smsData = await _db.GetSMSBalance();
         isReloading = false;
     }
@@ -27,7 +31,7 @@
     private string searchString = null;
     private async Task<TableData<User>> ServerReload(TableState state)
     {
-        IEnumerable<User> data = await _db.GetListUsers();
+        IEnumerable<User> data = (await _db.GetListUsers()).OrderByDescending(x=>x.DateRegistered);
         data = data.Where(User =>
         {
             if (string.IsNullOrWhiteSpace(searchString))
@@ -66,37 +70,37 @@
 
     async Task AddSMSDialog(User _user)
     {
-        var d = await dialog.Show<DialogAddSMSBalance>("Add SMS", 
+        var d = await dialog.Show<DialogAddSMSBalance>("Add SMS",
             new DialogParameters() { ["user"] = _user },
-            new DialogOptions(){ MaxWidth = MaxWidth.ExtraSmall }).Result;
+            new DialogOptions() { MaxWidth = MaxWidth.ExtraSmall }).Result;
     }
 }
 
 @if (IsAdmin)
 {
+    <MudToolBar Class="p-0 m-0" Dense>
+        <MudSpacer />
+        <MudButton Disabled="isReloading" Color="Color.Success" OnClick="GetBalance" Size="Size.Small" Variant="Variant.Text" StartIcon="@Icons.Rounded.Refresh">Refresh</MudButton>
+    </MudToolBar>
     <div class="row">
         <div class="col-md-3 pb-3">
-            <MudPaper Class="pt-3 pr-3 pl-3" Elevation="25">
+            <MudPaper Class="p-2" Elevation="25">
                 @if (isReloading)
                 {
                     <MudProgressLinear Indeterminate Size="Size.Small" Color="Color.Primary" />
                 }
                 <MudTextField Disabled="isReloading" Label="Balance" ReadOnly Text="@smsData.amount.ToString()" T="string" Adornment="Adornment.Start" AdornmentText="$" Variant="Variant.Outlined" Class="mb-3" />
-                <MudTextField Disabled="isReloading" Label="Remaining SMS" ReadOnly Text="@string.Format("{0:n0}", smsData.remaining_sms)" T="string" Variant="Variant.Outlined" />
-                <MudToolBar Class="p-0 m-0" Dense>
-                    <MudSpacer />
-                    <MudButton Disabled="isReloading" Color="Color.Success" OnClick="GetBalance" Size="Size.Small" Variant="Variant.Text" StartIcon="@Icons.Rounded.Refresh">Refresh</MudButton>
-                </MudToolBar>
+                <MudTextField Disabled="isReloading" Label="Remaining SMS" ReadOnly Text="@string.Format("{0:n0}", smsData.remaining_sms)" T="string" Variant="Variant.Outlined" Class="mb-3" />
+
             </MudPaper>
         </div>
         <div class="col-md-9 pb-3">
             <MudTable Bordered Elevation="25" ServerData="@(new Func<TableState, Task<TableData<User>>>(ServerReload))"
                       Dense Hover Striped @ref="_table">
                 <ToolBarContent>
-                    <MudText Typo="Typo.h6">Accounts</MudText>
-                    <MudSpacer />
                     <MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
                                   AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+                    <MudSpacer />
                 </ToolBarContent>
                 <HeaderContent>
                     <MudTh><MudTableSortLabel SortLabel="PIN" T="User">SMS</MudTableSortLabel></MudTh>
