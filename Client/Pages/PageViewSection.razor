@@ -17,6 +17,7 @@
     }
     async Task LoadData()
     {
+        records = new();
         sec = await _db.GetSection(sectionId);
 
         listofsubjects = await _db.GetListSubject(user.Email, sectionId);
