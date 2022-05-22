@@ -51,8 +51,6 @@
         }
     }
 
-
-
     private IEnumerable<Student> pagedData;
     private MudTable<Student> table1;
 
@@ -64,7 +62,9 @@
     /// </summary>
     private async Task<TableData<Student>> ServerReload(TableState state)
     {
-        IEnumerable<Student> data = await _db.GetStudentList(user.Email);
+        IEnumerable<Student> data = new List<Student>();
+        if(user != null && !string.IsNullOrEmpty(user.Email))
+            data = await _db.GetStudentList(user.Email);
         data = data.Where(Student =>
         {
             if (string.IsNullOrWhiteSpace(searchString))
@@ -112,7 +112,7 @@
             <MudSpacer />
             <MudButton OnClick="OnAddClick" Variant="Variant.Filled" StartIcon="@Icons.Rounded.PersonAdd" Color="Color.Primary" Size="Size.Small">New Student</MudButton>
         </MudToolBar>
-        <MudTable ServerData="@(new Func<TableState, Task<TableData<Student>>>(ServerReload))"
+        <MudTable T="Student" ServerData="@(new Func<TableState, Task<TableData<Student>>>(ServerReload))"
                   Dense Hover Outlined @ref="table1">
             <ToolBarContent>
                 <MudText Typo="Typo.h6">Students</MudText>
@@ -125,12 +125,16 @@
                 <MudTh><MudTableSortLabel SortLabel="LastName" T="Student">LastName</MudTableSortLabel></MudTh>
                 <MudTh><MudTableSortLabel SortLabel="Parent's Contact" T="Student">Parent's Contact</MudTableSortLabel></MudTh>
                 <MudTh><MudTableSortLabel SortLabel="Grade Level" T="Student">Grade Level</MudTableSortLabel></MudTh>
+                <MudTh Style="width:1%">Edit</MudTh>
             </HeaderContent>
             <RowTemplate>
                 <MudTd DataLabel="FistName">@context.FistName</MudTd>
                 <MudTd DataLabel="LastName">@context.LastName</MudTd>
                 <MudTd DataLabel="Parent's Contact">+63 @context.ParentsPhoneNumber</MudTd>
                 <MudTd DataLabel="GradeLevel">@context.GradeLevel</MudTd>
+                <MudTd DataLabel="Edit">
+                    <MudIconButton OnClick="@(()=> EditStudentClick(context))" Icon="@Icons.Rounded.Edit" Color="Color.Success" Size="Size.Small" Class="p-1"/>
+                </MudTd>
             </RowTemplate>
             <NoRecordsContent>
                 <MudText>No matching records found</MudText>

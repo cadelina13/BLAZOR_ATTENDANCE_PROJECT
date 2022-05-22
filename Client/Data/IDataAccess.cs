@@ -1,5 +1,5 @@
-﻿using Client.Models;
-using Client.ViewModels;
+﻿using SharedClass.Models;
+using SharedClass.ViewModels;
 using Refit;
 using System;
 using System.Collections.Generic;

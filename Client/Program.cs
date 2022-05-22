@@ -54,7 +54,7 @@ namespace Client
 #if DEBUG
             builder.Services.AddRefitClient<IDataAccess>().ConfigureHttpClient(c =>
             {
-                c.BaseAddress = new Uri("https://localhost:44328/attendance");
+                c.BaseAddress = new Uri("https://localhost:44312/attendance");
             });
 #else
             builder.Services.AddRefitClient<IDataAccess>().ConfigureHttpClient(c =>
@@ -64,7 +64,7 @@ namespace Client
                 c.DefaultRequestHeaders.Add("Access-Control-Allow-Credentials", "true");
                 c.DefaultRequestHeaders.Add("Access-Control-Allow-Headers", "Access-Control-Allow-Origin,Content-Type");*/
             });
-            builder.Logging.SetMinimumLevel(LogLevel.None);
+            //builder.Logging.SetMinimumLevel(LogLevel.None);
 #endif
 
             await builder.Build().RunAsync();

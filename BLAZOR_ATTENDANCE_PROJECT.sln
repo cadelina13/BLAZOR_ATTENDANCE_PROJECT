@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SharedClass", "SharedClass\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CodeDecryptor", "CodeDecryptor\CodeDecryptor.csproj", "{71B54E28-7D0A-40C7-B4BC-26824725133C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Api", "Api\Api.csproj", "{644724AB-5C2C-4A12-B3EF-2C1158242D29}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{71B54E28-7D0A-40C7-B4BC-26824725133C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{71B54E28-7D0A-40C7-B4BC-26824725133C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{71B54E28-7D0A-40C7-B4BC-26824725133C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{644724AB-5C2C-4A12-B3EF-2C1158242D29}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{644724AB-5C2C-4A12-B3EF-2C1158242D29}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{644724AB-5C2C-4A12-B3EF-2C1158242D29}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{644724AB-5C2C-4A12-B3EF-2C1158242D29}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
